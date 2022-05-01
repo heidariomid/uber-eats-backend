@@ -1,0 +1,114 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Resturan {
+  id: Float!
+  name: String!
+  isOpen: Boolean!
+}
+
+type User {
+  id: Float!
+  updatedAt: DateTime
+  createdAt: DateTime
+  email: String!
+  password: String!
+  role: UserRole!
+  verified: Boolean!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+enum UserRole {
+  Owner
+  Client
+  Delivery
+}
+
+type UpdateUserOutput {
+  message: String
+  ok: Boolean!
+}
+
+type UserProfileOutput {
+  message: String
+  ok: Boolean!
+  user: User
+}
+
+type ValidateEmailOutput {
+  message: String
+  ok: Boolean!
+}
+
+type createAccountOutput {
+  message: String
+  ok: Boolean!
+}
+
+type loginOutput {
+  message: String
+  ok: Boolean!
+  token: String
+}
+
+type Query {
+  getAllResturan: [Resturan!]!
+  users: [User!]!
+  loggedInUser: User!
+  userProfile(userId: Float!): UserProfileOutput!
+}
+
+type Mutation {
+  createResturan(data: createResturanArgs!): Resturan!
+  updateResturan(id: Float!, data: updateResturanInputType!): Boolean!
+  addUser(data: addUserArgs!): User!
+  updateUser(data: UpdateUserInput!): UpdateUserOutput!
+  validateEmail(data: ValidateEmailInput!): ValidateEmailOutput!
+  createAccount(data: createAccountInput!): createAccountOutput!
+  login(data: loginInput!): loginOutput!
+}
+
+input createResturanArgs {
+  name: String!
+  isOpen: Boolean = false
+}
+
+input updateResturanInputType {
+  name: String
+  isOpen: Boolean = false
+}
+
+input addUserArgs {
+  updatedAt: DateTime
+  createdAt: DateTime
+  email: String!
+  password: String!
+  role: UserRole!
+  verified: Boolean!
+}
+
+input UpdateUserInput {
+  email: String
+  password: String
+  role: UserRole
+}
+
+input ValidateEmailInput {
+  code: String!
+}
+
+input createAccountInput {
+  email: String!
+  password: String!
+  role: UserRole!
+}
+
+input loginInput {
+  email: String!
+  password: String!
+}

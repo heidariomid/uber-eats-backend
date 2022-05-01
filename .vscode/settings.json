@@ -1,0 +1,25 @@
+{
+  "files.exclude": {
+    "public": true,
+    ".gitignore": true,
+    "node_modules": true,
+    "yarn.lock": true,
+    "package-lock.json": true,
+    ".babelrc": true,
+    "index.html": true,
+    ".env": true,
+    "tsconfig.json": true,
+    ".eslintrc.json": true,
+    "test": true,
+    "README.md": true,
+    "tsconfig.build.json": true,
+    "nest-cli.json": true,
+    ".prettierrc": true,
+    ".eslintrc.js": true,
+    ".env.prod": true,
+    ".env.test": true,
+    "dist": true,
+    ".env.dev": true,
+    // "package.json": true
+  }
+}
