@@ -1,5 +1,5 @@
 import { InputType, ObjectType, PartialType, PickType } from '@nestjs/graphql';
-import { coreArgs } from 'src/common/core.args';
+import { coreArgs } from '../../common/core.args';
 import { User } from '../entities/users.entity';
 
 @InputType()

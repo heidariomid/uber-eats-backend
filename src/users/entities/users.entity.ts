@@ -6,8 +6,8 @@ import {
 } from '@nestjs/graphql';
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
 import { IsEmail, IsEnum, IsString, Length } from 'class-validator';
-import { CoreEntity } from 'src/common/core.entity';
-import { hashPassword } from 'src/services/hashPassword';
+import { CoreEntity } from '../../common/core.entity';
+import { hashPassword } from '../../services/hashPassword';
 
 enum UserRole {
   Owner = 'OWNER',

@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { JwtService } from 'src/jwt/jwt.service';
-import { MailService } from 'src/mail/mail.service';
-import { comparehashPassword } from 'src/services/hashPassword';
-import { User } from 'src/users/entities/users.entity';
-import { UsersValidation } from 'src/users/entities/usersValidation.entity';
+import { JwtService } from '../jwt/jwt.service';
+import { MailService } from '../mail/mail.service';
+import { comparehashPassword } from '../services/hashPassword';
+import { User } from '../users/entities/users.entity';
+import { UsersValidation } from '../users/entities/usersValidation.entity';
 import { Repository } from 'typeorm';
 import {
   createAccountInput,

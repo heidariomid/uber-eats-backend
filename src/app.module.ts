@@ -20,8 +20,6 @@ import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { UsersValidation } from './users/entities/usersValidation.entity';
 import { MailModule } from './mail/mail.module';
-import { MailmailService } from './mailmail/mailmail.service';
-import { UserService } from './user/user.service';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -69,7 +67,7 @@ import { UserService } from './user/user.service';
     }),
   ],
   controllers: [],
-  providers: [MailmailService, UserService],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

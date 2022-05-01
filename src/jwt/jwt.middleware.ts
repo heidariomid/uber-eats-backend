@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import { JwtService } from './jwt.service';
 @Injectable()
 export class JwtMiddleware {

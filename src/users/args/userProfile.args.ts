@@ -1,5 +1,5 @@
 import { ArgsType, Field, ObjectType } from '@nestjs/graphql';
-import { coreArgs } from 'src/common/core.args';
+import { coreArgs } from '../../common/core.args';
 import { User } from '../entities/users.entity';
 
 @ArgsType()
