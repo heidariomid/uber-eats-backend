@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '../jwt/jwt.service';
 import { MailService } from '../mail/mail.service';
-import { comparehashPassword } from '../services/hashPassword';
+import { HashPasswordService } from '../services/hashPassword';
 import { User } from '../users/entities/users.entity';
 import { UsersValidation } from '../users/entities/usersValidation.entity';
 import { Repository } from 'typeorm';
@@ -21,6 +21,7 @@ export class AuthService {
     private readonly usersValidation: Repository<UsersValidation>,
     private readonly mailService: MailService,
     private readonly jwtService: JwtService,
+    private readonly hashService: HashPasswordService,
   ) {}
 
   async createAccount({
@@ -33,24 +34,21 @@ export class AuthService {
       if (userExist) {
         throw new Error('User already exist');
       }
-      const savedUser = await this.users.save(
+      const user = await this.users.save(
         this.users.create({ email, password, role }),
       );
       const verification = await this.usersValidation.save(
-        this.usersValidation.create({ user: savedUser }),
+        this.usersValidation.create({ user }),
       );
-      this.mailService.sendVerificationMail(
-        savedUser?.email,
-        verification?.code,
-      );
+      this.mailService.sendVerificationMail(user?.email, verification?.code);
       return {
         ok: true,
         message: 'User created Successfully',
       };
     } catch (error) {
       return {
-        ok: true,
-        message: 'User not created',
+        ok: false,
+        message: error.message,
       };
     }
   }
@@ -62,9 +60,12 @@ export class AuthService {
         { select: ['id', 'password'] },
       );
       if (!user) {
-        throw new Error('User not found');
+        throw new Error('User does not exist');
       }
-      const isValid = await comparehashPassword(password, user.password);
+      const isValid = await this.hashService.comparehashPassword(
+        password,
+        user.password,
+      );
       if (!isValid) {
         throw new Error('Password is not valid');
       }
@@ -72,13 +73,13 @@ export class AuthService {
       const token = this.jwtService.generateToken({ id: user?.id });
       return {
         ok: true,
-        message: 'User created Successfully',
+        message: 'User logged in successfully',
         token,
       };
     } catch (error) {
       return {
-        ok: true,
-        message: 'User not created',
+        ok: false,
+        message: error.message,
       };
     }
   }

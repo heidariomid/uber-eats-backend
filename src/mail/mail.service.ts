@@ -38,7 +38,6 @@ export class MailService {
     const mailApiResponse = await axios.post(mailApiUrl, form, {
       headers: mailApiHeaders,
     });
-    console.log(mailApiResponse.data);
     return mailApiResponse?.data;
   }
   sendVerificationMail(email: string, code: string): Promise<any> {

@@ -6,9 +6,8 @@ import {
 } from '@nestjs/graphql';
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
 import { IsEmail, IsEnum, IsString, Length } from 'class-validator';
-import { CoreEntity } from '../../common/core.entity';
-import { hashPassword } from '../../services/hashPassword';
-
+import { CoreEntity } from 'src/common/core.entity';
+import { HashPasswordService } from '../../services/hashPassword';
 enum UserRole {
   Owner = 'OWNER',
   Client = 'CLIENT',
@@ -42,6 +41,9 @@ export class User extends CoreEntity {
   @BeforeInsert()
   @BeforeUpdate()
   async hashingPassword(): Promise<void> {
-    this.password && (this.password = await hashPassword(this.password));
+    this.password &&
+      (this.password = await new HashPasswordService().hashPassword(
+        this.password,
+      ));
   }
 }
