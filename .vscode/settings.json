@@ -16,10 +16,11 @@
     "nest-cli.json": true,
     ".prettierrc": true,
     ".eslintrc.js": true,
+    "dist": true,
+    "coverage": true,
     ".env.prod": true,
     ".env.test": true,
-    "dist": true,
     ".env.dev": true,
-    // "package.json": true
+    "package.json": true
   }
 }

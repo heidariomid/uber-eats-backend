@@ -27,7 +27,7 @@ import { MailModule } from './mail/mail.module';
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('dev', 'test', 'prod').default('dev'),
+        NODE_ENV: Joi.string().valid('dev', 'test', 'prod').required(),
         PORT: Joi.number().default(3000),
         DB_HOST: Joi.string().default('localhost'),
         DB_PORT: Joi.number().required(),
@@ -53,12 +53,13 @@ import { MailModule } from './mail/mail.module';
       database: process.env.DB_DATABASE,
       schema: process.env.DB_SCEMA,
       logging: false,
-      synchronize: process.env.NODE_ENV === 'dev',
+      synchronize: process.env.NODE_ENV !== 'prod',
       entities: [Resturan, User, UsersValidation],
     }),
     ResturanModule,
     UsersModule,
     CommonModule,
+
     AuthModule,
     JwtModule.forRoot({ JWT_SECRET: process.env.JWT_SECRET }),
     MailModule.forRoot({

@@ -103,7 +103,7 @@ describe('AuthService', () => {
       users.findOne.mockReturnValue(undefined);
       users.create.mockReturnValue(user);
       users.save.mockReturnValue(user);
-      usersValidation.create.mockReturnValue(user);
+      usersValidation.create.mockReturnValue(validUser);
       usersValidation.save.mockReturnValue(validUser);
       const result = await service.createAccount(user);
       expect(users.create).toHaveBeenCalledTimes(1);
@@ -119,7 +119,7 @@ describe('AuthService', () => {
       );
       expect(result).toMatchObject({
         ok: true,
-        message: 'User created Successfully',
+        message: 'Account created',
       });
     });
     it('should fail on any execption', async () => {
@@ -164,7 +164,7 @@ describe('AuthService', () => {
       );
       expect(result).toMatchObject({
         ok: false,
-        message: 'Password is not valid',
+        message: 'Email or Password is Wrong!',
       });
     });
 

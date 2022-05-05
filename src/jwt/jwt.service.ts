@@ -17,6 +17,7 @@ export class JwtService {
     }
   }
   findToken(authorization) {
+    console.log(authorization);
     // const [bearer, token] = authorization.split(' ');
     // if (!token) {
     // 	return false;

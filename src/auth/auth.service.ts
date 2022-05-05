@@ -43,7 +43,7 @@ export class AuthService {
       this.mailService.sendVerificationMail(user?.email, verification?.code);
       return {
         ok: true,
-        message: 'User created Successfully',
+        message: 'Account created',
       };
     } catch (error) {
       return {
@@ -67,7 +67,7 @@ export class AuthService {
         user.password,
       );
       if (!isValid) {
-        throw new Error('Password is not valid');
+        throw new Error('Email or Password is Wrong!');
       }
 
       const token = this.jwtService.generateToken({ id: user?.id });

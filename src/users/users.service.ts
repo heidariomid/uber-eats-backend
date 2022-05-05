@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MailService } from 'src/mail/mail.service';
 import { Repository } from 'typeorm';
 import { addUserArgs } from './args/addUser.args';
 import { UpdateUserInput, UpdateUserOutput } from './args/updateUser.args';
@@ -17,6 +18,7 @@ export class UsersService {
     @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(UsersValidation)
     private readonly usersValidation: Repository<UsersValidation>,
+    private readonly mailService: MailService,
   ) {}
   // get all users
   allUsers(): Promise<User[]> {
@@ -30,39 +32,36 @@ export class UsersService {
 
   //find user
   async findUser({ userId }: UserProfileInput): Promise<UserProfileOutput> {
-    const user = await this.users.findOne(userId);
     try {
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      return { ok: true, message: 'User Updated Successfully', user };
+      const user = await this.users.findOneOrFail(userId);
+      return { ok: true, message: 'User profile found', user };
     } catch (error) {
-      return { ok: false, message: error.message };
+      return { ok: false, message: 'User does not exist' };
     }
   }
 
   // update user
   async updateUser(
-    user: User,
-    args: UpdateUserInput,
+    { id }: User,
+    newUser: UpdateUserInput,
   ): Promise<UpdateUserOutput> {
     try {
-      const findUser = await this.users.findOne(user.id);
-      if (!findUser) {
-        throw new Error('User not found');
+      const user = await this.users.findOne(id);
+      if (!user) {
+        throw new Error('User does not exist');
       }
-
-      if (args?.email) {
-        findUser.email = args.email;
-        await this.usersValidation.save(
-          this.usersValidation.create({ user: findUser }),
+      if (newUser?.email) {
+        user.email = newUser?.email;
+        user.verified = false;
+        this.usersValidation.delete({ user: { id: user.id } });
+        const validation = await this.usersValidation.save(
+          this.usersValidation.create({ user }),
         );
+        this.mailService.sendVerificationMail(user?.email, validation?.code);
       }
-      args?.password && (findUser.password = args.password);
-      args?.role && (findUser.role = args.role);
-
-      await this.users.save(findUser);
+      newUser?.password && (user.password = newUser?.password);
+      newUser?.role && (user.role = newUser?.role);
+      await this.users.save(user);
       return { ok: true, message: 'User Updated Successfully' };
     } catch (error) {
       return { ok: false, message: error.message };
