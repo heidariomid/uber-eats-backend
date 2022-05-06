@@ -1,26 +1,13 @@
-import {
-  ArgsType,
-  Field,
-  InputType,
-  OmitType,
-  PartialType,
-} from '@nestjs/graphql';
+import { InputType, ObjectType, PickType } from '@nestjs/graphql';
+import { coreArgs } from 'src/common/core.args';
 import { Restaurant } from '../entities/restaurant.entity';
 
 @InputType()
-export class createRestaurantArgs extends OmitType(
-  Restaurant,
-  ['id'],
-  InputType,
-) {}
+export class createRestaurantInput extends PickType(Restaurant, [
+  'name',
+  'coverImg',
+  'address',
+]) {}
 
-@InputType()
-class updateRestaurantInputType extends PartialType(createRestaurantArgs) {}
-
-@ArgsType()
-export class updateRestaurantArgsType {
-  @Field(() => Number)
-  id: number;
-  @Field(() => updateRestaurantInputType)
-  data: updateRestaurantInputType;
-}
+@ObjectType()
+export class createRestaurantOutput extends coreArgs {}
