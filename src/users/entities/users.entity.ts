@@ -9,10 +9,10 @@ import { IsEmail, IsEnum, IsString, Length } from 'class-validator';
 import { CoreEntity } from 'src/common/core.entity';
 import { HashPasswordService } from '../../services/hashPassword';
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
-enum UserRole {
-  Owner = 'OWNER',
-  Client = 'CLIENT',
-  Delivery = 'DELIVERY',
+export enum UserRole {
+  Owner = 'Owner',
+  Client = 'Client',
+  Delivery = 'Delivery',
 }
 registerEnumType(UserRole, { name: 'UserRole' });
 @InputType('UserInput', { isAbstract: true })

@@ -2,20 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type Category {
-  id: Float!
-  updatedAt: DateTime
-  createdAt: DateTime
-  name: String!
-  iconImg: String!
-  restaurants: [Restaurant!]!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
 type User {
   id: Float!
   updatedAt: DateTime
@@ -26,6 +12,11 @@ type User {
   verified: Boolean!
   restaurants: [Restaurant!]!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 enum UserRole {
   Owner
@@ -42,6 +33,16 @@ type Restaurant {
   address: String!
   category: Category
   owner: User!
+}
+
+type Category {
+  id: Float!
+  updatedAt: DateTime
+  createdAt: DateTime
+  name: String!
+  iconImg: String
+  slug: String!
+  restaurants: [Restaurant!]!
 }
 
 type createRestaurantOutput {
@@ -95,6 +96,7 @@ input createRestaurantInput {
   name: String!
   coverImg: String!
   address: String!
+  categoryName: String!
 }
 
 input addUserArgs {
@@ -117,7 +119,8 @@ input RestaurantInput {
 
 input CategoryInput {
   name: String!
-  iconImg: String!
+  iconImg: String
+  slug: String!
   restaurants: [RestaurantInput!]!
 }
 
