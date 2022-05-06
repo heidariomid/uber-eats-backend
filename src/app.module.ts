@@ -7,10 +7,10 @@ import {
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
-import { ResturanModule } from './resturan/resturan.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { Resturan } from './resturan/resturan.entity';
+import { Restaurant } from './restaurant/entities/restaurant.entity';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/users.entity';
 import { CommonModule } from './common/core.module';
@@ -20,6 +20,7 @@ import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { UsersValidation } from './users/entities/usersValidation.entity';
 import { MailModule } from './mail/mail.module';
+import { Category } from './restaurant/entities/category.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -54,9 +55,9 @@ import { MailModule } from './mail/mail.module';
       schema: process.env.DB_SCEMA,
       logging: false,
       synchronize: process.env.NODE_ENV !== 'prod',
-      entities: [Resturan, User, UsersValidation],
+      entities: [Restaurant, User, UsersValidation, Category],
     }),
-    ResturanModule,
+    RestaurantModule,
     UsersModule,
     CommonModule,
 
