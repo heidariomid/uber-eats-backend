@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class coreArgs {
+export class CoreArgs {
   @Field(() => String, { nullable: true })
   message?: string;
 

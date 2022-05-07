@@ -14,7 +14,7 @@ export class RestaurantResolver {
 
   // create Restaurant
   @Mutation(() => createRestaurantOutput)
-  @AuthorizeRole(['Owner', 'Client'])
+  @AuthorizeRole(['Owner'])
   async createRestaurant(
     @AuthUser() user: User,
     @Args('data') args: createRestaurantInput,

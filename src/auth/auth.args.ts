@@ -1,5 +1,5 @@
 import { Field, InputType, ObjectType, PickType } from '@nestjs/graphql';
-import { coreArgs } from '../common/core.args';
+import { CoreArgs } from '../common/core.args';
 import { User } from '../users/entities/users.entity';
 
 @InputType()
@@ -10,13 +10,13 @@ export class createAccountInput extends PickType(User, [
 ]) {}
 
 @ObjectType()
-export class createAccountOutput extends coreArgs {}
+export class createAccountOutput extends CoreArgs {}
 
 @InputType()
 export class loginInput extends PickType(User, ['password', 'email']) {}
 
 @ObjectType()
-export class loginOutput extends coreArgs {
+export class loginOutput extends CoreArgs {
   @Field(() => String, { nullable: true })
   token?: string;
 }
