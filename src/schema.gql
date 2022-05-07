@@ -2,6 +2,21 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Category {
+  id: Float!
+  updatedAt: DateTime
+  createdAt: DateTime
+  name: String!
+  iconImg: String
+  slug: String!
+  restaurants: [Restaurant!]!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type User {
   id: Float!
   updatedAt: DateTime
@@ -12,11 +27,6 @@ type User {
   verified: Boolean!
   restaurants: [Restaurant!]!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 enum UserRole {
   Owner
@@ -35,17 +45,17 @@ type Restaurant {
   owner: User!
 }
 
-type Category {
-  id: Float!
-  updatedAt: DateTime
-  createdAt: DateTime
-  name: String!
-  iconImg: String
-  slug: String!
-  restaurants: [Restaurant!]!
+type CreateRestaurantOutput {
+  message: String
+  ok: Boolean!
 }
 
-type createRestaurantOutput {
+type DeleteRestaurantOutput {
+  message: String
+  ok: Boolean!
+}
+
+type EditRestaurantOutput {
   message: String
   ok: Boolean!
 }
@@ -84,7 +94,9 @@ type Query {
 }
 
 type Mutation {
-  createRestaurant(data: createRestaurantInput!): createRestaurantOutput!
+  createRestaurant(data: CreateRestaurantInput!): CreateRestaurantOutput!
+  editRestaurant(data: EditRestaurantInput!): EditRestaurantOutput!
+  deleteRestaurant(data: DeleteRestaurantInput!): DeleteRestaurantOutput!
   addUser(data: addUserArgs!): User!
   updateUser(data: UpdateUserInput!): UpdateUserOutput!
   validateEmail(data: ValidateEmailInput!): ValidateEmailOutput!
@@ -92,11 +104,27 @@ type Mutation {
   login(data: loginInput!): loginOutput!
 }
 
-input createRestaurantInput {
+input CreateRestaurantInput {
   name: String!
   coverImg: String!
   address: String!
   categoryName: String!
+}
+
+input EditRestaurantInput {
+  name: String
+  coverImg: String
+  address: String
+  categoryName: String
+  restaurantId: Float!
+}
+
+input DeleteRestaurantInput {
+  name: String
+  coverImg: String
+  address: String
+  categoryName: String
+  restaurantId: Float!
 }
 
 input addUserArgs {
