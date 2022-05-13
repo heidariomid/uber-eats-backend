@@ -10,6 +10,7 @@ type Category {
   iconImg: String
   slug: String!
   restaurants: [Restaurant!]!
+  restaurantCount: Int!
 }
 
 """
@@ -43,6 +44,19 @@ type Restaurant {
   address: String!
   category: Category
   owner: User!
+}
+
+type CategoriesOutput {
+  message: String
+  ok: Boolean!
+  categories: [Category!]
+}
+
+type CategoryOutput {
+  message: String
+  ok: Boolean!
+  totalPages: Int
+  category: Category
 }
 
 type CreateRestaurantOutput {
@@ -88,9 +102,16 @@ type loginOutput {
 }
 
 type Query {
+  getCategories: CategoriesOutput!
+  getCategory(data: CategoryInputType!): CategoryOutput!
   users: [User!]!
   loggedInUser: User!
   userProfile(userId: Float!): UserProfileOutput!
+}
+
+input CategoryInputType {
+  page: Int = 1
+  slug: String!
 }
 
 type Mutation {

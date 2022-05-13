@@ -3,6 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/users.entity';
 import { Repository } from 'typeorm';
 import {
+  CategoriesOutput,
+  CategoryInputType,
+  CategoryOutput,
+} from './args/categories.args';
+import {
   DeleteRestaurantInput,
   DeleteRestaurantOutput,
 } from './args/deleteRestaurant.args';
@@ -85,6 +90,50 @@ export class RestaurantService {
       }
       await this.restaurant.delete(args.restaurantId);
       return { ok: true, message: 'Restaurant Deleted successfully' };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+
+  async getCategories(): Promise<CategoriesOutput> {
+    try {
+      const categories = await this.categories.find();
+      if (!categories) {
+        throw new Error('Categories not found');
+      }
+
+      return {
+        ok: true,
+        message: 'Categories Founded Successfully',
+        categories,
+      };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+
+  async restaurantCount(category: Category): Promise<number> {
+    return this.restaurant.count({ category });
+  }
+  async getCategory({
+    slug,
+    page,
+  }: CategoryInputType): Promise<CategoryOutput> {
+    try {
+      const category = await this.categories.findOne(
+        { slug },
+        { relations: ['restaurants'] },
+      );
+      if (!category) {
+        throw new Error('category not found');
+      }
+
+      return {
+        ok: true,
+        message: 'category Founded Successfully',
+        category,
+        totalPages: 2,
+      };
     } catch (error) {
       return { ok: false, message: error.message };
     }
