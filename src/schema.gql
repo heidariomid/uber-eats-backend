@@ -44,6 +44,25 @@ type Restaurant {
   address: String!
   category: Category
   owner: User!
+  menu: [Dish!]!
+}
+
+type DishOption {
+  name: String!
+  choices: [String!]
+  extra: Int
+}
+
+type Dish {
+  id: Float!
+  updatedAt: DateTime
+  createdAt: DateTime
+  name: String!
+  photo: String
+  description: String
+  price: Int!
+  restaurant: Restaurant!
+  options: [DishOption!]
 }
 
 type CategoriesOutput {
@@ -79,6 +98,21 @@ type RestaurantOutput {
 }
 
 type DeleteRestaurantOutput {
+  message: String
+  ok: Boolean!
+}
+
+type CreateDishOutput {
+  message: String
+  ok: Boolean!
+}
+
+type DeleteDishOutput {
+  message: String
+  ok: Boolean!
+}
+
+type EditDishOutput {
   message: String
   ok: Boolean!
 }
@@ -156,6 +190,9 @@ type Mutation {
   createRestaurant(data: CreateRestaurantInput!): CreateRestaurantOutput!
   editRestaurant(data: EditRestaurantInput!): EditRestaurantOutput!
   deleteRestaurant(data: DeleteRestaurantInput!): DeleteRestaurantOutput!
+  createDishe(data: CreateDishInput!): CreateDishOutput!
+  deleteDish(dishId: Float!): DeleteDishOutput!
+  editDish(data: EditDishInput!): EditDishOutput!
   addUser(data: addUserArgs!): User!
   updateUser(data: UpdateUserInput!): UpdateUserOutput!
   validateEmail(data: ValidateEmailInput!): ValidateEmailOutput!
@@ -186,6 +223,29 @@ input DeleteRestaurantInput {
   restaurantId: Float!
 }
 
+input CreateDishInput {
+  name: String!
+  description: String
+  price: Int!
+  options: [DishtOptionInput!]
+  restaurantId: Int!
+}
+
+input DishtOptionInput {
+  name: String!
+  choices: [String!]
+  extra: Int
+}
+
+input EditDishInput {
+  name: String
+  description: String
+  price: Int
+  options: [DishtOptionInput!]
+  restaurantId: Int
+  dishId: Float!
+}
+
 input addUserArgs {
   updatedAt: DateTime
   createdAt: DateTime
@@ -202,6 +262,7 @@ input RestaurantInput {
   address: String!
   category: CategoryInput
   owner: UserInput!
+  menu: [DishInput!]!
 }
 
 input CategoryInput {
@@ -217,6 +278,15 @@ input UserInput {
   role: UserRole!
   verified: Boolean!
   restaurants: [RestaurantInput!]!
+}
+
+input DishInput {
+  name: String!
+  photo: String
+  description: String
+  price: Int!
+  restaurant: RestaurantInput!
+  options: [DishtOptionInput!]
 }
 
 input UpdateUserInput {

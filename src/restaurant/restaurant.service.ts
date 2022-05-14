@@ -12,6 +12,14 @@ import {
   DeleteRestaurantOutput,
 } from './args/deleteRestaurant.args';
 import {
+  CreateDishInput,
+  CreateDishOutput,
+  DeleteDishInput,
+  DeleteDishOutput,
+  EditDishInput,
+  EditDishOutput,
+} from './args/dishes.args';
+import {
   EditRestaurantInput,
   EditRestaurantOutput,
 } from './args/editRestaurant.args';
@@ -28,6 +36,7 @@ import {
   SearchRestaurantOutput,
 } from './args/searchRestaurants.args';
 import { Category } from './entities/category.entity';
+import { Dish } from './entities/dish.entity';
 import { Restaurant } from './entities/restaurant.entity';
 import { CategoryRepository } from './repo/category.repo';
 
@@ -37,6 +46,8 @@ export class RestaurantService {
     @InjectRepository(Restaurant)
     private readonly restaurant: Repository<Restaurant>,
     private readonly categories: CategoryRepository,
+    @InjectRepository(Dish)
+    private readonly dishes: Repository<Dish>,
   ) {}
 
   async createResuran(
@@ -172,7 +183,9 @@ export class RestaurantService {
     restaurantId,
   }: RestaurantInputType): Promise<RestaurantOutput> {
     try {
-      const restaurant = await this.restaurant.findOne(restaurantId);
+      const restaurant = await this.restaurant.findOne(restaurantId, {
+        relations: ['menu'],
+      });
 
       return {
         ok: true,
@@ -203,6 +216,74 @@ export class RestaurantService {
         totalRestaurants,
         totalPages: Math.ceil(totalRestaurants / 10),
       };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+
+  async createDishe(
+    owner: User,
+    args: CreateDishInput,
+  ): Promise<CreateDishOutput> {
+    try {
+      // find restaurant
+      const restaurant = await this.restaurant.findOne(args.restaurantId);
+      if (!restaurant) {
+        throw new Error('Restaurant not found');
+      }
+      // check restaurant owner is same as user
+      if (owner.id !== restaurant.ownerId) {
+        throw new Error('You are not authorized to create this dish');
+      }
+      // create new dish
+      const dish = this.dishes.create({ ...args, restaurant });
+      await this.dishes.save(dish);
+      // return result
+      return { ok: true, message: 'Dish Created successfully' };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+
+  async deleteDish(
+    owner: User,
+    args: DeleteDishInput,
+  ): Promise<DeleteDishOutput> {
+    try {
+      const dish = await this.dishes.findOne(args.dishId, {
+        relations: ['restaurant'],
+      });
+      if (!dish) {
+        throw new Error('Dish not found');
+      }
+      if (owner.id !== dish.restaurant.ownerId) {
+        throw new Error('You are not authorized to edit this dish');
+      }
+      await this.dishes.delete(args.dishId);
+      return { ok: true, message: 'Dish Deleted successfully' };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+
+  async editDish(owner: User, args: EditDishInput): Promise<EditDishOutput> {
+    try {
+      const dish = await this.dishes.findOne(args.dishId, {
+        relations: ['restaurant'],
+      });
+      if (!dish) {
+        throw new Error('Dish not found');
+      }
+      if (owner.id !== dish.restaurant.ownerId) {
+        throw new Error('You are not authorized to edit this dish');
+      }
+      await this.dishes.save([
+        {
+          id: args.dishId,
+          ...args,
+        },
+      ]);
+      return { ok: true, message: 'Dish Updated successfully' };
     } catch (error) {
       return { ok: false, message: error.message };
     }

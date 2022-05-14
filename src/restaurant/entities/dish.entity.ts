@@ -4,7 +4,29 @@ import { IsNumber, IsString, Length } from 'class-validator';
 import { CoreEntity } from 'src/common/core.entity';
 import { Restaurant } from './restaurant.entity';
 
-@InputType('CategoryInput', { isAbstract: true })
+@InputType('DishtChoiceInput', { isAbstract: true })
+@ObjectType()
+class DishChoice {
+  @Field(() => String)
+  name: string;
+
+  @Field(() => Int, { nullable: true })
+  extra?: number;
+}
+@InputType('DishtOptionInput', { isAbstract: true })
+@ObjectType()
+class DishOption {
+  @Field(() => String)
+  name: string;
+
+  @Field(() => [String], { nullable: true })
+  choices?: DishChoice[];
+
+  @Field(() => Int, { nullable: true })
+  extra?: number;
+}
+
+@InputType('DishInput', { isAbstract: true })
 @ObjectType()
 @Entity()
 export class Dish extends CoreEntity {
@@ -13,16 +35,16 @@ export class Dish extends CoreEntity {
   @IsString()
   name: string;
 
-  @Field(() => String)
-  @Column()
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
   @IsString()
-  photo: string;
+  photo?: string;
 
-  @Field(() => String)
-  @Column()
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
   @IsString()
   @Length(5, 50)
-  description: string;
+  description?: string;
 
   @Field(() => Int)
   @Column()
@@ -30,11 +52,15 @@ export class Dish extends CoreEntity {
   price: number;
 
   @Field(() => Restaurant)
-  @ManyToOne(() => Restaurant, (restaurant) => restaurant.dishes, {
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.menu, {
     onDelete: 'CASCADE',
   })
   restaurant: Restaurant;
 
   @RelationId((dish: Dish) => dish.restaurant)
   restaurantId: number;
+
+  @Field(() => [DishOption], { nullable: true })
+  @Column('json', { nullable: true })
+  options?: DishOption[];
 }

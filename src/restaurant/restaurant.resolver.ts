@@ -19,6 +19,14 @@ import {
   DeleteRestaurantOutput,
 } from './args/deleteRestaurant.args';
 import {
+  CreateDishInput,
+  CreateDishOutput,
+  DeleteDishInput,
+  DeleteDishOutput,
+  EditDishInput,
+  EditDishOutput,
+} from './args/dishes.args';
+import {
   EditRestaurantInput,
   EditRestaurantOutput,
 } from './args/editRestaurant.args';
@@ -35,6 +43,7 @@ import {
   SearchRestaurantOutput,
 } from './args/searchRestaurants.args';
 import { Category } from './entities/category.entity';
+import { Dish } from './entities/dish.entity';
 import { Restaurant } from './entities/restaurant.entity';
 import { RestaurantService } from './restaurant.service';
 
@@ -114,5 +123,39 @@ export class CategoryResolver {
     @Args('data') args: CategoryInputType,
   ): Promise<CategoryOutput> {
     return await this.restaurantService.getCategory(args);
+  }
+}
+
+@Resolver(() => Dish)
+export class DishResolver {
+  constructor(private readonly restaurantService: RestaurantService) {}
+  // create dish
+  @Mutation(() => CreateDishOutput)
+  @AuthorizeRole(['Owner'])
+  async createDishe(
+    @AuthUser() owner: User,
+    @Args('data') args: CreateDishInput,
+  ): Promise<CreateDishOutput> {
+    return await this.restaurantService.createDishe(owner, args);
+  }
+
+  // delete dish
+  @Mutation(() => DeleteDishOutput)
+  @AuthorizeRole(['Owner'])
+  async deleteDish(
+    @AuthUser() owner: User,
+    @Args() args: DeleteDishInput,
+  ): Promise<DeleteDishOutput> {
+    return await this.restaurantService.deleteDish(owner, args);
+  }
+
+  // edit dish
+  @Mutation(() => EditDishOutput)
+  @AuthorizeRole(['Owner'])
+  async editDish(
+    @AuthUser() owner: User,
+    @Args('data') args: EditDishInput,
+  ): Promise<EditDishOutput> {
+    return await this.restaurantService.editDish(owner, args);
   }
 }
