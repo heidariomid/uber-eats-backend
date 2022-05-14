@@ -221,7 +221,7 @@ export class RestaurantService {
     }
   }
 
-  async createDishe(
+  async createDish(
     owner: User,
     args: CreateDishInput,
   ): Promise<CreateDishOutput> {

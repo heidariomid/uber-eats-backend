@@ -136,7 +136,7 @@ export class DishResolver {
     @AuthUser() owner: User,
     @Args('data') args: CreateDishInput,
   ): Promise<CreateDishOutput> {
-    return await this.restaurantService.createDishe(owner, args);
+    return await this.restaurantService.createDish(owner, args);
   }
 
   // delete dish

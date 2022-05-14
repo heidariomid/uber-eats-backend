@@ -18,6 +18,27 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Order {
+  id: Float!
+  updatedAt: DateTime
+  createdAt: DateTime
+  customer: User
+  driver: User
+  restaurant: Restaurant!
+  dishes: [Dish!]!
+  status: OrderStatus!
+  totalPrice: Float!
+}
+
+enum OrderStatus {
+  Pending
+  Confirmed
+  Canceled
+  Delivered
+  PickedUp
+  Cooking
+}
+
 type User {
   id: Float!
   updatedAt: DateTime
@@ -27,6 +48,8 @@ type User {
   role: UserRole!
   verified: Boolean!
   restaurants: [Restaurant!]!
+  orders: [Order!]!
+  rides: [Order!]!
 }
 
 enum UserRole {
@@ -45,6 +68,7 @@ type Restaurant {
   category: Category
   owner: User!
   menu: [Dish!]!
+  orders: [Order!]!
 }
 
 type DishOption {
@@ -157,6 +181,21 @@ type loginOutput {
   token: String
 }
 
+type CreateOrderOutput {
+  message: String
+  ok: Boolean!
+}
+
+type DeleteOrderOutput {
+  message: String
+  ok: Boolean!
+}
+
+type EditOrderOutput {
+  message: String
+  ok: Boolean!
+}
+
 type Query {
   getRestaurants(data: RestaurantsInput!): RestaurantsOutput!
   getRestaurant(data: RestaurantInputType!): RestaurantOutput!
@@ -196,6 +235,9 @@ type Mutation {
   addUser(data: addUserArgs!): User!
   updateUser(data: UpdateUserInput!): UpdateUserOutput!
   validateEmail(data: ValidateEmailInput!): ValidateEmailOutput!
+  createOrder(data: CreateOrderInput!): CreateOrderOutput!
+  deleteOrder(orderId: Float!): DeleteOrderOutput!
+  editOrder(data: EditOrderInput!): EditOrderOutput!
   createAccount(data: createAccountInput!): createAccountOutput!
   login(data: loginInput!): loginOutput!
 }
@@ -227,11 +269,11 @@ input CreateDishInput {
   name: String!
   description: String
   price: Int!
-  options: [DishtOptionInput!]
+  options: [DishOptionInput!]
   restaurantId: Int!
 }
 
-input DishtOptionInput {
+input DishOptionInput {
   name: String!
   choices: [String!]
   extra: Int
@@ -241,7 +283,7 @@ input EditDishInput {
   name: String
   description: String
   price: Int
-  options: [DishtOptionInput!]
+  options: [DishOptionInput!]
   restaurantId: Int
   dishId: Float!
 }
@@ -254,6 +296,8 @@ input addUserArgs {
   role: UserRole!
   verified: Boolean!
   restaurants: [RestaurantInput!]!
+  orders: [OrdersInputType!]!
+  rides: [OrdersInputType!]!
 }
 
 input RestaurantInput {
@@ -263,6 +307,7 @@ input RestaurantInput {
   category: CategoryInput
   owner: UserInput!
   menu: [DishInput!]!
+  orders: [OrdersInputType!]!
 }
 
 input CategoryInput {
@@ -278,6 +323,17 @@ input UserInput {
   role: UserRole!
   verified: Boolean!
   restaurants: [RestaurantInput!]!
+  orders: [OrdersInputType!]!
+  rides: [OrdersInputType!]!
+}
+
+input OrdersInputType {
+  customer: UserInput
+  driver: UserInput
+  restaurant: RestaurantInput!
+  dishes: [DishInput!]!
+  status: OrderStatus!
+  totalPrice: Float!
 }
 
 input DishInput {
@@ -286,7 +342,7 @@ input DishInput {
   description: String
   price: Int!
   restaurant: RestaurantInput!
-  options: [DishtOptionInput!]
+  options: [DishOptionInput!]
 }
 
 input UpdateUserInput {
@@ -297,6 +353,25 @@ input UpdateUserInput {
 
 input ValidateEmailInput {
   code: String!
+}
+
+input CreateOrderInput {
+  customer: UserInput
+  driver: UserInput
+  restaurant: RestaurantInput!
+  dishes: [DishInput!]!
+  status: OrderStatus!
+  restaurantId: Int!
+}
+
+input EditOrderInput {
+  customer: UserInput
+  driver: UserInput
+  restaurant: RestaurantInput
+  dishes: [DishInput!]
+  status: OrderStatus
+  restaurantId: Int
+  orderId: Float!
 }
 
 input createAccountInput {

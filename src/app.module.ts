@@ -22,6 +22,8 @@ import { UsersValidation } from './users/entities/usersValidation.entity';
 import { MailModule } from './mail/mail.module';
 import { Category } from './restaurant/entities/category.entity';
 import { Dish } from './restaurant/entities/dish.entity';
+import { OrdersModule } from './orders/orders.module';
+import { Order } from './orders/entities/orders.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -56,12 +58,12 @@ import { Dish } from './restaurant/entities/dish.entity';
       schema: process.env.DB_SCEMA,
       logging: false,
       synchronize: process.env.NODE_ENV !== 'prod',
-      entities: [Restaurant, User, UsersValidation, Category, Dish],
+      entities: [Restaurant, User, UsersValidation, Category, Dish, Order],
     }),
     RestaurantModule,
     UsersModule,
     CommonModule,
-
+    OrdersModule,
     AuthModule,
     JwtModule.forRoot({ JWT_SECRET: process.env.JWT_SECRET }),
     MailModule.forRoot({
