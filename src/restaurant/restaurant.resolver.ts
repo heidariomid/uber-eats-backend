@@ -25,7 +25,15 @@ import {
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
+  RestaurantInputType,
+  RestaurantOutput,
+  RestaurantsInput,
+  RestaurantsOutput,
 } from './args/restaurant.args';
+import {
+  SearchRestaurantInput,
+  SearchRestaurantOutput,
+} from './args/searchRestaurants.args';
 import { Category } from './entities/category.entity';
 import { Restaurant } from './entities/restaurant.entity';
 import { RestaurantService } from './restaurant.service';
@@ -63,6 +71,30 @@ export class RestaurantResolver {
     @Args('data') args: DeleteRestaurantInput,
   ): Promise<DeleteRestaurantOutput> {
     return await this.restaurantService.deleteRestaurant(user, args);
+  }
+
+  // get all restaurants
+  @Query(() => RestaurantsOutput)
+  async getRestaurants(
+    @Args('data') args: RestaurantsInput,
+  ): Promise<RestaurantsOutput> {
+    return await this.restaurantService.getRestaurants(args);
+  }
+
+  // get restaurant by id
+  @Query(() => RestaurantOutput)
+  async getRestaurant(
+    @Args('data') args: RestaurantInputType,
+  ): Promise<RestaurantOutput> {
+    return await this.restaurantService.getRestaurant(args);
+  }
+
+  // search restaurant by query
+  @Query(() => SearchRestaurantOutput)
+  async searchRestaurants(
+    @Args('data') args: SearchRestaurantInput,
+  ): Promise<SearchRestaurantOutput> {
+    return await this.restaurantService.searchRestaurants(args);
   }
 }
 

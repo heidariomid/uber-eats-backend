@@ -21,6 +21,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
 import { UsersValidation } from './users/entities/usersValidation.entity';
 import { MailModule } from './mail/mail.module';
 import { Category } from './restaurant/entities/category.entity';
+import { Dish } from './restaurant/entities/dish.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -55,7 +56,7 @@ import { Category } from './restaurant/entities/category.entity';
       schema: process.env.DB_SCEMA,
       logging: false,
       synchronize: process.env.NODE_ENV !== 'prod',
-      entities: [Restaurant, User, UsersValidation, Category],
+      entities: [Restaurant, User, UsersValidation, Category, Dish],
     }),
     RestaurantModule,
     UsersModule,

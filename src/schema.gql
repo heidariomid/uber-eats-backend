@@ -64,6 +64,20 @@ type CreateRestaurantOutput {
   ok: Boolean!
 }
 
+type RestaurantsOutput {
+  message: String
+  ok: Boolean!
+  totalPages: Int
+  restaurants: [Restaurant!]
+  totalRestaurants: Int
+}
+
+type RestaurantOutput {
+  message: String
+  ok: Boolean!
+  restaurant: Restaurant
+}
+
 type DeleteRestaurantOutput {
   message: String
   ok: Boolean!
@@ -72,6 +86,14 @@ type DeleteRestaurantOutput {
 type EditRestaurantOutput {
   message: String
   ok: Boolean!
+}
+
+type SearchRestaurantOutput {
+  message: String
+  ok: Boolean!
+  totalPages: Int
+  restaurants: [Restaurant!]
+  totalRestaurants: Int
 }
 
 type UpdateUserOutput {
@@ -102,11 +124,27 @@ type loginOutput {
 }
 
 type Query {
+  getRestaurants(data: RestaurantsInput!): RestaurantsOutput!
+  getRestaurant(data: RestaurantInputType!): RestaurantOutput!
+  searchRestaurants(data: SearchRestaurantInput!): SearchRestaurantOutput!
   getCategories: CategoriesOutput!
   getCategory(data: CategoryInputType!): CategoryOutput!
   users: [User!]!
   loggedInUser: User!
   userProfile(userId: Float!): UserProfileOutput!
+}
+
+input RestaurantsInput {
+  page: Int = 1
+}
+
+input RestaurantInputType {
+  restaurantId: Int!
+}
+
+input SearchRestaurantInput {
+  page: Int = 1
+  query: String
 }
 
 input CategoryInputType {

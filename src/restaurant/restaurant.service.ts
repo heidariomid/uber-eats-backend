@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/users.entity';
-import { Repository } from 'typeorm';
+import { Like, Raw, Repository } from 'typeorm';
 import {
   CategoriesOutput,
   CategoryInputType,
@@ -18,7 +18,15 @@ import {
 import {
   CreateRestaurantInput,
   CreateRestaurantOutput,
+  RestaurantInputType,
+  RestaurantOutput,
+  RestaurantsInput,
+  RestaurantsOutput,
 } from './args/restaurant.args';
+import {
+  SearchRestaurantInput,
+  SearchRestaurantOutput,
+} from './args/searchRestaurants.args';
 import { Category } from './entities/category.entity';
 import { Restaurant } from './entities/restaurant.entity';
 import { CategoryRepository } from './repo/category.repo';
@@ -120,19 +128,80 @@ export class RestaurantService {
     page,
   }: CategoryInputType): Promise<CategoryOutput> {
     try {
-      const category = await this.categories.findOne(
-        { slug },
-        { relations: ['restaurants'] },
-      );
+      const category = await this.categories.findOne({ slug });
       if (!category) {
         throw new Error('category not found');
       }
-
+      const restaurants = await this.restaurant.find({
+        where: { category },
+        skip: (page - 1) * 10,
+        take: 10,
+      });
+      category.restaurants = restaurants;
+      const total = await this.restaurantCount(category);
       return {
         ok: true,
         message: 'category Founded Successfully',
         category,
-        totalPages: 2,
+        totalPages: Math.ceil(total / 10),
+      };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+  async getRestaurants({ page }: RestaurantsInput): Promise<RestaurantsOutput> {
+    try {
+      const [restaurants, totalRestaurants] =
+        await this.restaurant.findAndCount({
+          skip: (page - 1) * 10,
+          take: 10,
+        });
+
+      return {
+        ok: true,
+        message: 'Restaurants Founded Successfully',
+        restaurants,
+        totalRestaurants,
+        totalPages: Math.ceil(totalRestaurants / 10),
+      };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+  async getRestaurant({
+    restaurantId,
+  }: RestaurantInputType): Promise<RestaurantOutput> {
+    try {
+      const restaurant = await this.restaurant.findOne(restaurantId);
+
+      return {
+        ok: true,
+        message: 'Restaurant Founded Successfully',
+        restaurant,
+      };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+  async searchRestaurants({
+    query,
+    page,
+  }: SearchRestaurantInput): Promise<SearchRestaurantOutput> {
+    try {
+      const [restaurants, totalRestaurants] =
+        await this.restaurant.findAndCount({
+          where: {
+            name: Raw((alias) => `${alias} ILIKE '%${query}%'`),
+          },
+          skip: (page - 1) * 10,
+          take: 10,
+        });
+      return {
+        ok: true,
+        message: 'Restaurants Founded Successfully',
+        restaurants,
+        totalRestaurants,
+        totalPages: Math.ceil(totalRestaurants / 10),
       };
     } catch (error) {
       return { ok: false, message: error.message };
