@@ -18,7 +18,6 @@ export class CreateOrderInput extends PickType(Order, [
   'dishes',
   'driver',
   'restaurant',
-  'status',
 ]) {
   @Field(() => Int)
   restaurantId: number;

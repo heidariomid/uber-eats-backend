@@ -27,7 +27,7 @@ type Order {
   restaurant: Restaurant!
   dishes: [Dish!]!
   status: OrderStatus!
-  totalPrice: Float!
+  totalPrice: Float
 }
 
 enum OrderStatus {
@@ -333,7 +333,7 @@ input OrdersInputType {
   restaurant: RestaurantInput!
   dishes: [DishInput!]!
   status: OrderStatus!
-  totalPrice: Float!
+  totalPrice: Float
 }
 
 input DishInput {
@@ -360,7 +360,6 @@ input CreateOrderInput {
   driver: UserInput
   restaurant: RestaurantInput!
   dishes: [DishInput!]!
-  status: OrderStatus!
   restaurantId: Int!
 }
 
@@ -369,7 +368,6 @@ input EditOrderInput {
   driver: UserInput
   restaurant: RestaurantInput
   dishes: [DishInput!]
-  status: OrderStatus
   restaurantId: Int
   orderId: Float!
 }

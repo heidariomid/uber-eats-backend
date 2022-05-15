@@ -7,7 +7,7 @@ import { Order } from 'src/orders/entities/orders.entity';
 
 @InputType('DishChoiceInput', { isAbstract: true })
 @ObjectType()
-class DishChoice {
+export class DishChoice {
   @Field(() => String)
   name: string;
 
@@ -16,7 +16,7 @@ class DishChoice {
 }
 @InputType('DishOptionInput', { isAbstract: true })
 @ObjectType()
-class DishOption {
+export class DishOption {
   @Field(() => String)
   name: string;
 

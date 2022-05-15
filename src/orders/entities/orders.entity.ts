@@ -61,7 +61,7 @@ export class Order extends CoreEntity {
   })
   status: OrderStatus;
 
-  @Field(() => Float)
-  @Column({ type: 'float' })
-  totalPrice: number;
+  @Field(() => Float, { nullable: true })
+  @Column({ type: 'float', nullable: true })
+  totalPrice?: number;
 }
