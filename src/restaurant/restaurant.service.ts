@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/users.entity';
-import { Like, Raw, Repository } from 'typeorm';
+import { Raw, Repository } from 'typeorm';
 import {
   CategoriesOutput,
   CategoryInputType,
@@ -16,6 +16,8 @@ import {
   CreateDishOutput,
   DeleteDishInput,
   DeleteDishOutput,
+  DishOneInput,
+  DishOutput,
   EditDishInput,
   EditDishOutput,
 } from './args/dishes.args';
@@ -284,6 +286,24 @@ export class RestaurantService {
         },
       ]);
       return { ok: true, message: 'Dish Updated successfully' };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+
+  async getDish({ dishId }: DishOneInput): Promise<DishOutput> {
+    try {
+      const dish = await this.dishes.findOne(dishId, {
+        relations: ['restaurant'],
+      });
+      if (!dish) {
+        throw new Error('Dish not found');
+      }
+      return {
+        ok: true,
+        message: 'Dish Founded Successfully',
+        dish,
+      };
     } catch (error) {
       return { ok: false, message: error.message };
     }

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Dish } from 'src/restaurant/entities/dish.entity';
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
 import { User } from 'src/users/entities/users.entity';
 import { Repository } from 'typeorm';
@@ -11,6 +12,7 @@ import {
   EditOrderInput,
   EditOrderOutput,
 } from './args/orders.args';
+import { OrderItem } from './entities/orderItem.entity';
 import { Order } from './entities/orders.entity';
 
 @Injectable()
@@ -19,25 +21,65 @@ export class OrdersService {
     @InjectRepository(Order) private readonly orders: Repository<Order>,
     @InjectRepository(Restaurant)
     private readonly restaurant: Repository<Restaurant>,
+    @InjectRepository(OrderItem)
+    private readonly orderItem: Repository<OrderItem>,
+    @InjectRepository(Dish)
+    private readonly dishes: Repository<Dish>,
   ) {}
   async createOrder(
-    owner: User,
-    args: CreateOrderInput,
+    customer: User,
+    { restaurantId, items }: CreateOrderInput,
   ): Promise<CreateOrderOutput> {
     try {
       // find restaurant
-      const restaurant = await this.restaurant.findOne(args.restaurantId);
+      const restaurant = await this.restaurant.findOne(restaurantId);
       if (!restaurant) {
         throw new Error('Restaurant not found');
       }
-      // check restaurant owner is same as user
-      if (owner.id !== restaurant.ownerId) {
-        throw new Error('You are not authorized to create this order');
+
+      // create order item
+      let totalPrice = 0;
+      for (const item of items) {
+        const dish = await this.dishes.findOne(item.dishId);
+        if (!dish) {
+          throw new Error('Dish not found');
+        }
+
+        let dishFinalPrice = dish.price;
+        for (const itemOption of item.options) {
+          const dishOption = dish.options.find(
+            (dishOption) => dishOption.name === itemOption.name,
+          );
+
+          if (!dishOption) {
+            throw new Error('Dish Option not found');
+          }
+          if (dishOption.extra) {
+            dishFinalPrice += dishOption.extra;
+          }
+          if (dishOption.choices) {
+            const dishOptionChoice = dishOption.choices.find(
+              (dishOptionChoice) => dishOptionChoice.name === itemOption.choice,
+            );
+            if (dishOptionChoice && dishOptionChoice.extra) {
+              dishFinalPrice += dishOptionChoice.extra;
+            }
+          }
+        }
+        totalPrice += dishFinalPrice;
+
+        const orderItem = this.orderItem.create({
+          dish,
+          options: item.options,
+        });
+        await this.orderItem.save(orderItem);
       }
-      // create new order
-      const order = this.orders.create({ ...args, restaurant });
+
+      // create order
+      const order = this.orders.create({ customer, restaurant, totalPrice });
+
       await this.orders.save(order);
-      // return result
+
       return { ok: true, message: 'Order Created successfully' };
     } catch (error) {
       return { ok: false, message: error.message };

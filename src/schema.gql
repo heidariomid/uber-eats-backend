@@ -18,14 +18,27 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type OrderItemOption {
+  name: String!
+  choice: String
+}
+
+type OrderItem {
+  id: Float!
+  updatedAt: DateTime
+  createdAt: DateTime
+  dish: Dish!
+  options: [OrderItemOption!]
+}
+
 type Order {
   id: Float!
   updatedAt: DateTime
   createdAt: DateTime
   customer: User
   driver: User
-  restaurant: Restaurant!
-  dishes: [Dish!]!
+  restaurant: Restaurant
+  items: [OrderItem!]!
   status: OrderStatus!
   totalPrice: Float
 }
@@ -71,9 +84,14 @@ type Restaurant {
   orders: [Order!]!
 }
 
+type DishChoice {
+  name: String!
+  extra: Int
+}
+
 type DishOption {
   name: String!
-  choices: [String!]
+  choices: [DishChoice!]
   extra: Int
 }
 
@@ -129,6 +147,13 @@ type DeleteRestaurantOutput {
 type CreateDishOutput {
   message: String
   ok: Boolean!
+}
+
+type DishOutput {
+  message: String
+  ok: Boolean!
+  totalPages: Int
+  dish: Dish
 }
 
 type DeleteDishOutput {
@@ -202,6 +227,7 @@ type Query {
   searchRestaurants(data: SearchRestaurantInput!): SearchRestaurantOutput!
   getCategories: CategoriesOutput!
   getCategory(data: CategoryInputType!): CategoryOutput!
+  getDish(dishId: Int!): DishOutput!
   users: [User!]!
   loggedInUser: User!
   userProfile(userId: Float!): UserProfileOutput!
@@ -275,7 +301,12 @@ input CreateDishInput {
 
 input DishOptionInput {
   name: String!
-  choices: [String!]
+  choices: [DishChoiceInput!]
+  extra: Int
+}
+
+input DishChoiceInput {
+  name: String!
   extra: Int
 }
 
@@ -330,10 +361,15 @@ input UserInput {
 input OrdersInputType {
   customer: UserInput
   driver: UserInput
-  restaurant: RestaurantInput!
-  dishes: [DishInput!]!
+  restaurant: RestaurantInput
+  items: [OrderItemInputType!]!
   status: OrderStatus!
   totalPrice: Float
+}
+
+input OrderItemInputType {
+  dish: DishInput!
+  options: [OrderItemOptionInputType!]
 }
 
 input DishInput {
@@ -343,6 +379,11 @@ input DishInput {
   price: Int!
   restaurant: RestaurantInput!
   options: [DishOptionInput!]
+}
+
+input OrderItemOptionInputType {
+  name: String!
+  choice: String
 }
 
 input UpdateUserInput {
@@ -356,19 +397,18 @@ input ValidateEmailInput {
 }
 
 input CreateOrderInput {
-  customer: UserInput
-  driver: UserInput
-  restaurant: RestaurantInput!
-  dishes: [DishInput!]!
   restaurantId: Int!
+  items: [CreateOrderItemInput!]!
+}
+
+input CreateOrderItemInput {
+  dishId: Int!
+  options: [OrderItemOptionInputType!]
 }
 
 input EditOrderInput {
-  customer: UserInput
-  driver: UserInput
-  restaurant: RestaurantInput
-  dishes: [DishInput!]
   restaurantId: Int
+  items: [CreateOrderItemInput!]
   orderId: Float!
 }
 

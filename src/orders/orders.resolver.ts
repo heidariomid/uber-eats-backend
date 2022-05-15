@@ -19,10 +19,10 @@ export class OrdersResolver {
   @Mutation(() => CreateOrderOutput)
   @AuthorizeRole(['Client'])
   async createOrder(
-    @AuthUser() owner: User,
+    @AuthUser() customer: User,
     @Args('data') args: CreateOrderInput,
   ): Promise<CreateOrderOutput> {
-    return await this.ordersService.createOrder(owner, args);
+    return await this.ordersService.createOrder(customer, args);
   }
 
   // delete order

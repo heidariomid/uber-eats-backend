@@ -24,6 +24,7 @@ import { Category } from './restaurant/entities/category.entity';
 import { Dish } from './restaurant/entities/dish.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entities/orders.entity';
+import { OrderItem } from './orders/entities/orderItem.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -58,7 +59,15 @@ import { Order } from './orders/entities/orders.entity';
       schema: process.env.DB_SCEMA,
       logging: false,
       synchronize: process.env.NODE_ENV !== 'prod',
-      entities: [Restaurant, User, UsersValidation, Category, Dish, Order],
+      entities: [
+        Restaurant,
+        User,
+        UsersValidation,
+        Category,
+        Dish,
+        Order,
+        OrderItem,
+      ],
     }),
     RestaurantModule,
     UsersModule,

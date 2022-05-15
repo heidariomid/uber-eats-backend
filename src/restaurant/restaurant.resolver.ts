@@ -23,6 +23,8 @@ import {
   CreateDishOutput,
   DeleteDishInput,
   DeleteDishOutput,
+  DishOneInput,
+  DishOutput,
   EditDishInput,
   EditDishOutput,
 } from './args/dishes.args';
@@ -157,5 +159,11 @@ export class DishResolver {
     @Args('data') args: EditDishInput,
   ): Promise<EditDishOutput> {
     return await this.restaurantService.editDish(owner, args);
+  }
+
+  // get dish by id
+  @Query(() => DishOutput)
+  async getDish(@Args() args: DishOneInput): Promise<DishOutput> {
+    return await this.restaurantService.getDish(args);
   }
 }

@@ -64,3 +64,10 @@ export class EditDishInput extends PartialType(CreateDishInput) {
 
 @ObjectType()
 export class EditDishOutput extends CoreArgs {}
+
+// dish
+@ArgsType()
+export class DishOneInput {
+  @Field(() => Int)
+  dishId: number;
+}

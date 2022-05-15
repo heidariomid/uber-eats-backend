@@ -5,22 +5,29 @@ import {
   Int,
   ObjectType,
   PartialType,
-  PickType,
 } from '@nestjs/graphql';
 import { CoreArgs } from 'src/common/core.args';
 import { PaginationInput, PaginationOutput } from 'src/common/pagination.args';
+import { OrderItemOption } from '../entities/orderItem.entity';
 import { Order } from '../entities/orders.entity';
 
+//create custom
+@InputType()
+class CreateOrderItemInput {
+  @Field(() => Int)
+  dishId: number;
+
+  @Field(() => [OrderItemOption], { nullable: true })
+  options?: OrderItemOption[];
+}
 //create
 @InputType()
-export class CreateOrderInput extends PickType(Order, [
-  'customer',
-  'dishes',
-  'driver',
-  'restaurant',
-]) {
+export class CreateOrderInput {
   @Field(() => Int)
   restaurantId: number;
+
+  @Field(() => [CreateOrderItemInput])
+  items: CreateOrderItemInput[];
 }
 
 @ObjectType()
