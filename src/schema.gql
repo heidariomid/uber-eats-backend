@@ -45,11 +45,10 @@ type Order {
 
 enum OrderStatus {
   Pending
-  Confirmed
-  Canceled
-  Delivered
-  PickedUp
   Cooking
+  Cooked
+  PickedUp
+  Delivered
 }
 
 type User {
@@ -211,9 +210,17 @@ type CreateOrderOutput {
   ok: Boolean!
 }
 
-type DeleteOrderOutput {
+type OrdersOutput {
   message: String
   ok: Boolean!
+  orders: [Order!]
+}
+
+type OrderOutput {
+  message: String
+  ok: Boolean!
+  totalPages: Int
+  order: Order
 }
 
 type EditOrderOutput {
@@ -262,8 +269,9 @@ type Mutation {
   updateUser(data: UpdateUserInput!): UpdateUserOutput!
   validateEmail(data: ValidateEmailInput!): ValidateEmailOutput!
   createOrder(data: CreateOrderInput!): CreateOrderOutput!
-  deleteOrder(orderId: Float!): DeleteOrderOutput!
   editOrder(data: EditOrderInput!): EditOrderOutput!
+  getOrders(data: OrdersInputFilter!): OrdersOutput!
+  getOrderById(data: OrderInputType!): OrderOutput!
   createAccount(data: createAccountInput!): createAccountOutput!
   login(data: loginInput!): loginOutput!
 }
@@ -407,9 +415,16 @@ input CreateOrderItemInput {
 }
 
 input EditOrderInput {
-  restaurantId: Int
-  items: [CreateOrderItemInput!]
-  orderId: Float!
+  id: Float!
+  status: OrderStatus!
+}
+
+input OrdersInputFilter {
+  status: OrderStatus
+}
+
+input OrderInputType {
+  id: Float!
 }
 
 input createAccountInput {

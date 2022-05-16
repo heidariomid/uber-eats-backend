@@ -8,6 +8,10 @@ import {
   DeleteOrderOutput,
   EditOrderInput,
   EditOrderOutput,
+  OrderInputType,
+  OrderOutput,
+  OrdersInputFilter,
+  OrdersOutput,
 } from './args/orders.args';
 import { OrdersService } from './orders.service';
 
@@ -25,23 +29,33 @@ export class OrdersResolver {
     return await this.ordersService.createOrder(customer, args);
   }
 
-  // delete order
-  @Mutation(() => DeleteOrderOutput)
-  @AuthorizeRole(['Owner'])
-  async deleteOrder(
-    @AuthUser() owner: User,
-    @Args() args: DeleteOrderInput,
-  ): Promise<DeleteOrderOutput> {
-    return await this.ordersService.deleteOrder(owner, args);
-  }
-
   // edit order
   @Mutation(() => EditOrderOutput)
-  @AuthorizeRole(['Owner'])
+  @AuthorizeRole(['Any'])
   async editOrder(
-    @AuthUser() owner: User,
+    @AuthUser() user: User,
     @Args('data') args: EditOrderInput,
   ): Promise<EditOrderOutput> {
-    return await this.ordersService.editOrder(owner, args);
+    return await this.ordersService.editOrder(user, args);
+  }
+
+  // get all orders
+  @Mutation(() => OrdersOutput)
+  @AuthorizeRole(['Any'])
+  async getOrders(
+    @AuthUser() user: User,
+    @Args('data') args: OrdersInputFilter,
+  ): Promise<OrderOutput> {
+    return await this.ordersService.getOrders(user, args);
+  }
+
+  // get order by id
+  @Mutation(() => OrderOutput)
+  @AuthorizeRole(['Client', 'Owner'])
+  async getOrderById(
+    @AuthUser() user: User,
+    @Args('data') args: OrderInputType,
+  ): Promise<OrderOutput> {
+    return await this.ordersService.getOrderById(user, args);
   }
 }

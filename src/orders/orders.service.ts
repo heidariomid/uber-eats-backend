@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dish } from 'src/restaurant/entities/dish.entity';
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
-import { User } from 'src/users/entities/users.entity';
+import { User, UserRole } from 'src/users/entities/users.entity';
 import { Repository } from 'typeorm';
 import {
   CreateOrderInput,
@@ -11,9 +11,13 @@ import {
   DeleteOrderOutput,
   EditOrderInput,
   EditOrderOutput,
+  OrderInputType,
+  OrderOutput,
+  OrdersInputFilter,
+  OrdersOutput,
 } from './args/orders.args';
 import { OrderItem } from './entities/orderItem.entity';
-import { Order } from './entities/orders.entity';
+import { Order, OrderStatus } from './entities/orders.entity';
 
 @Injectable()
 export class OrdersService {
@@ -39,6 +43,7 @@ export class OrdersService {
 
       // create order item
       let totalPrice = 0;
+      const orderItems: OrderItem[] = [];
       for (const item of items) {
         const dish = await this.dishes.findOne(item.dishId);
         if (!dish) {
@@ -68,17 +73,23 @@ export class OrdersService {
         }
         totalPrice += dishFinalPrice;
 
-        const orderItem = this.orderItem.create({
+        const orderItemCreate = this.orderItem.create({
           dish,
           options: item.options,
         });
-        await this.orderItem.save(orderItem);
+        const orderItem = await this.orderItem.save(orderItemCreate);
+        orderItems.push(orderItem);
       }
 
       // create order
-      const order = this.orders.create({ customer, restaurant, totalPrice });
+      const orderCreate = this.orders.create({
+        customer,
+        restaurant,
+        totalPrice,
+        items: orderItems,
+      });
 
-      await this.orders.save(order);
+      const order = await this.orders.save(orderCreate);
 
       return { ok: true, message: 'Order Created successfully' };
     } catch (error) {
@@ -86,47 +97,127 @@ export class OrdersService {
     }
   }
 
-  async deleteOrder(
-    owner: User,
-    args: DeleteOrderInput,
-  ): Promise<DeleteOrderOutput> {
+  async editOrder(
+    user: User,
+    { id: orderId, status }: EditOrderInput,
+  ): Promise<EditOrderOutput> {
     try {
-      const order = await this.orders.findOne(args.orderId, {
+      const order = await this.orders.findOne(orderId, {
         relations: ['restaurant'],
       });
       if (!order) {
         throw new Error('Order not found');
       }
-      if (owner.id !== order.restaurant.ownerId) {
+      if (!this.canSeeOrder(user, order)) {
+        throw new Error('You are not authorized to view this order');
+      }
+      let canEdit = false;
+
+      //client
+      if (user.role === UserRole.Client) {
+        canEdit = false;
         throw new Error('You are not authorized to edit this order');
       }
-      await this.orders.delete(args.orderId);
-      return { ok: true, message: 'Order Deleted successfully' };
-    } catch (error) {
-      return { ok: false, message: error.message };
-    }
-  }
-
-  async editOrder(owner: User, args: EditOrderInput): Promise<EditOrderOutput> {
-    try {
-      const order = await this.orders.findOne(args.orderId, {
-        relations: ['restaurant'],
-      });
-      if (!order) {
-        throw new Error('Order not found');
+      //owner
+      if (user.role === UserRole.Owner) {
+        if (status !== OrderStatus.Cooking && status !== OrderStatus.Cooked) {
+          canEdit = false;
+          throw new Error('You are not authorized to edit this order');
+        }
       }
-      if (owner.id !== order.restaurant.ownerId) {
+      //delivery
+      if (user.role === UserRole.Delivery) {
+        if (
+          status !== OrderStatus.PickedUp &&
+          status !== OrderStatus.Delivered
+        ) {
+          canEdit = false;
+          throw new Error('You are not authorized to edit this order');
+        }
+      }
+      if (!canEdit) {
         throw new Error('You are not authorized to edit this order');
       }
       await this.orders.save([
         {
-          id: args.orderId,
-          ...args,
+          id: orderId,
+          status,
         },
       ]);
       return { ok: true, message: 'Order Updated successfully' };
     } catch (error) {
       return { ok: false, message: error.message };
     }
+  }
+
+  async getOrderById(user: User, { id }: OrderInputType): Promise<OrderOutput> {
+    try {
+      const order = await this.orders.findOne(id, {
+        relations: ['restaurant'],
+      });
+      if (!order) {
+        throw new Error('Order not found');
+      }
+      if (!this.canSeeOrder(user, order)) {
+        throw new Error('You are not authorized to view this order');
+      }
+      return { ok: true, message: 'Order Found successfully', order };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+
+  async getOrders(
+    user: User,
+    { status }: OrdersInputFilter,
+  ): Promise<OrdersOutput> {
+    try {
+      let orders;
+      if (user.role === UserRole.Client) {
+        orders = await this.orders.find({
+          where: { customer: user, ...(status && { status }) },
+        });
+        return { ok: true, message: 'Orders Found successfully', orders };
+      } else if (user.role === UserRole.Delivery) {
+        orders = await this.orders.find({
+          where: { driver: user, ...(status && { status }) },
+        });
+        return { ok: true, message: 'Orders Found successfully', orders };
+      } else if (user.role === UserRole.Owner) {
+        const restaurants = await this.restaurant.find({
+          relations: ['orders'],
+
+          where: { owner: user },
+        });
+        orders = restaurants.map((restaurant) => restaurant.orders).flat(1);
+        if (status) {
+          orders = orders.filter((order: Order) => order.status === status);
+        }
+        return {
+          ok: true,
+          message: 'Orders Found successfully',
+          orders,
+        };
+      }
+
+      return { ok: true, message: 'Orders Found successfully' };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+
+  canSeeOrder(user: User, order: Order): boolean {
+    let canSee = true;
+    if (user.role === UserRole.Client && order.customerId !== user.id) {
+      canSee = false;
+    } else if (user.role === UserRole.Delivery && order.driverId !== user.id) {
+      canSee = false;
+    } else if (
+      user.role === UserRole.Owner &&
+      order.restaurant.ownerId !== user.id
+    ) {
+      canSee = false;
+    }
+    return canSee;
   }
 }
