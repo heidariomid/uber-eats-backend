@@ -4,11 +4,10 @@ import {
   InputType,
   Int,
   ObjectType,
-  PartialType,
   PickType,
 } from '@nestjs/graphql';
 import { CoreArgs } from 'src/common/core.args';
-import { PaginationInput, PaginationOutput } from 'src/common/pagination.args';
+import { PaginationOutput } from 'src/common/pagination.args';
 import { OrderItemOption } from '../entities/orderItem.entity';
 import { Order, OrderStatus } from '../entities/orders.entity';
 

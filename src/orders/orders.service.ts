@@ -13,8 +13,6 @@ import { Repository } from 'typeorm';
 import {
   CreateOrderInput,
   CreateOrderOutput,
-  DeleteOrderInput,
-  DeleteOrderOutput,
   EditOrderInput,
   EditOrderOutput,
   OrderInputType,
