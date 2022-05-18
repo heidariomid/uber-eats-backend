@@ -1,5 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PubSub } from 'graphql-subscriptions';
+import {
+  NEW_COOKED_ORDER,
+  NEW_PENDING_ORDER,
+  NEW_UPDATE_ORDER,
+} from 'src/common/core.constants';
 import { Dish } from 'src/restaurant/entities/dish.entity';
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
 import { User, UserRole } from 'src/users/entities/users.entity';
@@ -29,6 +35,7 @@ export class OrdersService {
     private readonly orderItem: Repository<OrderItem>,
     @InjectRepository(Dish)
     private readonly dishes: Repository<Dish>,
+    @Inject('PUB_SUB') private readonly pubsub: PubSub,
   ) {}
   async createOrder(
     customer: User,
@@ -90,7 +97,9 @@ export class OrdersService {
       });
 
       const order = await this.orders.save(orderCreate);
-
+      await this.pubsub.publish(NEW_PENDING_ORDER, {
+        pendingOrders: { order, ownerId: restaurant.ownerId },
+      });
       return { ok: true, message: 'Order Created successfully' };
     } catch (error) {
       return { ok: false, message: error.message };
@@ -103,7 +112,7 @@ export class OrdersService {
   ): Promise<EditOrderOutput> {
     try {
       const order = await this.orders.findOne(orderId, {
-        relations: ['restaurant'],
+        loadEagerRelations: true,
       });
       if (!order) {
         throw new Error('Order not found');
@@ -111,7 +120,7 @@ export class OrdersService {
       if (!this.canSeeOrder(user, order)) {
         throw new Error('You are not authorized to view this order');
       }
-      let canEdit = false;
+      let canEdit = true;
 
       //client
       if (user.role === UserRole.Client) {
@@ -136,14 +145,24 @@ export class OrdersService {
         }
       }
       if (!canEdit) {
-        throw new Error('You are not authorized to edit this order');
+        throw new Error('You are not authorized to seeeeee edit this order');
       }
-      await this.orders.save([
-        {
-          id: orderId,
-          status,
-        },
-      ]);
+      await this.orders.save({
+        id: orderId,
+        status,
+      });
+      if (user.role === UserRole.Owner) {
+        if (status === OrderStatus.Cooked) {
+          await this.pubsub.publish(NEW_COOKED_ORDER, {
+            cookedOrders: { ...order, status },
+          });
+        }
+      }
+
+      await this.pubsub.publish(NEW_UPDATE_ORDER, {
+        updateOrders: { ...order, status },
+      });
+
       return { ok: true, message: 'Order Updated successfully' };
     } catch (error) {
       return { ok: false, message: error.message };
@@ -201,6 +220,27 @@ export class OrdersService {
       }
 
       return { ok: true, message: 'Orders Found successfully' };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+
+  async takeOrder(driver: User, { id }: OrderInputType): Promise<OrderOutput> {
+    try {
+      const order = await this.orders.findOne(id, {
+        relations: ['restaurant'],
+      });
+      if (!order) {
+        throw new Error('Order not found');
+      }
+      await this.orders.save({
+        id: order.id,
+        driver,
+      });
+      await this.pubsub.publish(NEW_UPDATE_ORDER, {
+        updateOrders: { ...order, driver },
+      });
+      return { ok: true, message: 'Order Updated successfully' };
     } catch (error) {
       return { ok: false, message: error.message };
     }

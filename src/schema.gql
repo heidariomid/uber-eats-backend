@@ -272,6 +272,7 @@ type Mutation {
   editOrder(data: EditOrderInput!): EditOrderOutput!
   getOrders(data: OrdersInputFilter!): OrdersOutput!
   getOrderById(data: OrderInputType!): OrderOutput!
+  takeOrder(data: OrderInputType!): OrderOutput!
   createAccount(data: createAccountInput!): createAccountOutput!
   login(data: loginInput!): loginOutput!
 }
@@ -436,4 +437,10 @@ input createAccountInput {
 input loginInput {
   email: String!
   password: String!
+}
+
+type Subscription {
+  pendingOrders: Order!
+  cookedOrders: Order!
+  updateOrders(data: OrderInputType!): Order!
 }

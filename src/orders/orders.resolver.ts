@@ -1,11 +1,16 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Inject } from '@nestjs/common';
+import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql';
+import { PubSub } from 'graphql-subscriptions';
 import { AuthorizeRole, AuthUser } from 'src/auth/auth.decorator';
+import {
+  NEW_COOKED_ORDER,
+  NEW_PENDING_ORDER,
+  NEW_UPDATE_ORDER,
+} from 'src/common/core.constants';
 import { User } from 'src/users/entities/users.entity';
 import {
   CreateOrderInput,
   CreateOrderOutput,
-  DeleteOrderInput,
-  DeleteOrderOutput,
   EditOrderInput,
   EditOrderOutput,
   OrderInputType,
@@ -13,11 +18,15 @@ import {
   OrdersInputFilter,
   OrdersOutput,
 } from './args/orders.args';
+import { Order } from './entities/orders.entity';
 import { OrdersService } from './orders.service';
 
 @Resolver()
 export class OrdersResolver {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    @Inject('PUB_SUB') private readonly pubsub: PubSub,
+  ) {}
 
   // create order
   @Mutation(() => CreateOrderOutput)
@@ -57,5 +66,60 @@ export class OrdersResolver {
     @Args('data') args: OrderInputType,
   ): Promise<OrderOutput> {
     return await this.ordersService.getOrderById(user, args);
+  }
+
+  // take order
+
+  @Mutation(() => OrderOutput)
+  @AuthorizeRole(['Delivery'])
+  async takeOrder(
+    @AuthUser() driver: User,
+    @Args('data') args: OrderInputType,
+  ): Promise<OrderOutput> {
+    return await this.ordersService.takeOrder(driver, args);
+  }
+
+  // --------------------SUBSCRIPTION----------------------
+
+  // create order subscription
+  @Subscription(() => Order, {
+    filter: ({ pendingOrders }, _, { user }) =>
+      pendingOrders?.ownerId === user?.id,
+
+    resolve: ({ pendingOrders }) => pendingOrders.order,
+  })
+  @AuthorizeRole(['Owner'])
+  pendingOrders() {
+    return this.pubsub.asyncIterator(NEW_PENDING_ORDER);
+  }
+
+  // edit order subscription
+  @Subscription(() => Order)
+  @AuthorizeRole(['Delivery'])
+  cookedOrders() {
+    return this.pubsub.asyncIterator(NEW_COOKED_ORDER);
+  }
+
+  // update order
+  @Subscription(() => Order, {
+    filter: (
+      { updateOrders: order }: { updateOrders: Order },
+      { data }: { data: OrderInputType },
+      { user }: { user: User },
+    ) => {
+      if (
+        order?.driverId !== user.id &&
+        order.customerId !== user.id &&
+        order.restaurant.ownerId !== user.id
+      ) {
+        return false;
+      }
+
+      return order.id === data.id;
+    },
+  })
+  @AuthorizeRole(['Any'])
+  updateOrders(@Args('data') args: OrderInputType) {
+    return this.pubsub.asyncIterator(NEW_UPDATE_ORDER);
   }
 }

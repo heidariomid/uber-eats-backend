@@ -1,9 +1,4 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
@@ -17,7 +12,6 @@ import { CommonModule } from './common/core.module';
 import { AuthModule } from './auth/auth.module';
 import * as Joi from 'joi';
 import { JwtModule } from './jwt/jwt.module';
-import { JwtMiddleware } from './jwt/jwt.middleware';
 import { UsersValidation } from './users/entities/usersValidation.entity';
 import { MailModule } from './mail/mail.module';
 import { Category } from './restaurant/entities/category.entity';
@@ -25,6 +19,7 @@ import { Dish } from './restaurant/entities/dish.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entities/orders.entity';
 import { OrderItem } from './orders/entities/orderItem.entity';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -47,7 +42,18 @@ import { OrderItem } from './orders/entities/orderItem.entity';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      context: async ({ req }) => ({ user: req['user'] }),
+      subscriptions: {
+        'subscriptions-transport-ws': {
+          path: '/graphql',
+          onConnect({ Authorization }) {
+            if (Authorization) {
+              return { token: Authorization };
+            }
+            throw new Error('Missing auth token!');
+          },
+        },
+      },
+      context: ({ req }) => req && { token: req.headers.authorization },
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -74,6 +80,7 @@ import { OrderItem } from './orders/entities/orderItem.entity';
     CommonModule,
     OrdersModule,
     AuthModule,
+    CommonModule,
     JwtModule.forRoot({ JWT_SECRET: process.env.JWT_SECRET }),
     MailModule.forRoot({
       MAIL_API_KEY: process.env.MAIL_API_KEY,
@@ -83,11 +90,4 @@ import { OrderItem } from './orders/entities/orderItem.entity';
   controllers: [],
   providers: [],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtMiddleware).forRoutes({
-      path: '*',
-      method: RequestMethod.ALL,
-    });
-  }
-}
+export class AppModule {}
