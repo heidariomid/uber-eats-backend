@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Cron, Interval } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PubSub } from 'graphql-subscriptions';
 import { NEW_PENDING_ORDER } from 'src/common/core.constants';
