@@ -10,6 +10,7 @@ import { CoreEntity } from 'src/common/core.entity';
 import { HashPasswordService } from '../../services/hashPassword';
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
 import { Order } from 'src/orders/entities/orders.entity';
+import { Payment } from 'src/payments/entities/payments.entity';
 export enum UserRole {
   Owner = 'Owner',
   Client = 'Client',
@@ -47,6 +48,10 @@ export class User extends CoreEntity {
   @Field(() => [Order])
   @OneToMany(() => Order, (order) => order.customer)
   orders: Order[];
+
+  @Field(() => [Payment])
+  @OneToMany(() => Payment, (payment) => payment.user)
+  payments: Payment[];
 
   @Field(() => [Order])
   @OneToMany(() => Order, (order) => order.driver)

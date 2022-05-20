@@ -19,6 +19,9 @@ import { Dish } from './restaurant/entities/dish.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entities/orders.entity';
 import { OrderItem } from './orders/entities/orderItem.entity';
+import { PaymentsModule } from './payments/payments.module';
+import { Payment } from './payments/entities/payments.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -73,6 +76,7 @@ import { OrderItem } from './orders/entities/orderItem.entity';
         Dish,
         Order,
         OrderItem,
+        Payment,
       ],
     }),
     RestaurantModule,
@@ -86,6 +90,8 @@ import { OrderItem } from './orders/entities/orderItem.entity';
       MAIL_API_KEY: process.env.MAIL_API_KEY,
       MAIL_DOMAIN_NAME: process.env.MAIL_DOMAIN_NAME,
     }),
+    PaymentsModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [],
   providers: [],

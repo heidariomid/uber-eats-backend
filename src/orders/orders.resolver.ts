@@ -21,7 +21,7 @@ import {
 import { Order } from './entities/orders.entity';
 import { OrdersService } from './orders.service';
 
-@Resolver()
+@Resolver(() => Order)
 export class OrdersResolver {
   constructor(
     private readonly ordersService: OrdersService,

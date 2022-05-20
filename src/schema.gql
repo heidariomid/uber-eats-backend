@@ -51,6 +51,16 @@ enum OrderStatus {
   Delivered
 }
 
+type Payment {
+  id: Float!
+  updatedAt: DateTime
+  createdAt: DateTime
+  transactionId: String!
+  user: User!
+  restaurant: Restaurant!
+  restaurantId: Int!
+}
+
 type User {
   id: Float!
   updatedAt: DateTime
@@ -61,6 +71,7 @@ type User {
   verified: Boolean!
   restaurants: [Restaurant!]!
   orders: [Order!]!
+  payments: [Payment!]!
   rides: [Order!]!
 }
 
@@ -81,6 +92,8 @@ type Restaurant {
   owner: User!
   menu: [Dish!]!
   orders: [Order!]!
+  isPromoted: Boolean!
+  promotedUntil: DateTime
 }
 
 type DishChoice {
@@ -228,6 +241,17 @@ type EditOrderOutput {
   ok: Boolean!
 }
 
+type CreatePaymentOutput {
+  message: String
+  ok: Boolean!
+}
+
+type PaymentsOutput {
+  message: String
+  ok: Boolean!
+  payments: [Payment!]
+}
+
 type Query {
   getRestaurants(data: RestaurantsInput!): RestaurantsOutput!
   getRestaurant(data: RestaurantInputType!): RestaurantOutput!
@@ -238,6 +262,7 @@ type Query {
   users: [User!]!
   loggedInUser: User!
   userProfile(userId: Float!): UserProfileOutput!
+  Payments: PaymentsOutput!
 }
 
 input RestaurantsInput {
@@ -275,6 +300,7 @@ type Mutation {
   takeOrder(data: OrderInputType!): OrderOutput!
   createAccount(data: createAccountInput!): createAccountOutput!
   login(data: loginInput!): loginOutput!
+  createPayment(data: CreatePaymentInputType!): CreatePaymentOutput!
 }
 
 input CreateRestaurantInput {
@@ -337,6 +363,7 @@ input addUserArgs {
   verified: Boolean!
   restaurants: [RestaurantInput!]!
   orders: [OrdersInputType!]!
+  payments: [PaymentsInputType!]!
   rides: [OrdersInputType!]!
 }
 
@@ -348,6 +375,8 @@ input RestaurantInput {
   owner: UserInput!
   menu: [DishInput!]!
   orders: [OrdersInputType!]!
+  isPromoted: Boolean!
+  promotedUntil: DateTime
 }
 
 input CategoryInput {
@@ -364,6 +393,7 @@ input UserInput {
   verified: Boolean!
   restaurants: [RestaurantInput!]!
   orders: [OrdersInputType!]!
+  payments: [PaymentsInputType!]!
   rides: [OrdersInputType!]!
 }
 
@@ -393,6 +423,13 @@ input DishInput {
 input OrderItemOptionInputType {
   name: String!
   choice: String
+}
+
+input PaymentsInputType {
+  transactionId: String!
+  user: UserInput!
+  restaurant: RestaurantInput!
+  restaurantId: Int!
 }
 
 input UpdateUserInput {
@@ -439,8 +476,14 @@ input loginInput {
   password: String!
 }
 
+input CreatePaymentInputType {
+  transactionId: String!
+  restaurantId: Int!
+}
+
 type Subscription {
   pendingOrders: Order!
   cookedOrders: Order!
   updateOrders(data: OrderInputType!): Order!
+  pendingPayments: Payment!
 }
