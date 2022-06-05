@@ -147,8 +147,8 @@ export class RestaurantService {
       }
       const restaurants = await this.restaurant.find({
         where: { category },
-        skip: (page - 1) * 10,
-        take: 10,
+        skip: (page - 1) * 6,
+        take: 6,
         order: {
           isPromoted: 'DESC',
         },
@@ -159,7 +159,7 @@ export class RestaurantService {
         ok: true,
         message: 'category Founded Successfully',
         category,
-        totalPages: Math.ceil(total / 10),
+        totalPages: Math.ceil(total / 6),
       };
     } catch (error) {
       return { ok: false, message: error.message };
@@ -169,9 +169,10 @@ export class RestaurantService {
     try {
       const [restaurants, totalRestaurants] =
         await this.restaurant.findAndCount({
-          skip: (page - 1) * 10,
-          take: 10,
+          skip: (page - 1) * 6,
+          take: 6,
           order: { isPromoted: 'DESC' },
+          relations: ['category'],
         });
 
       return {
@@ -179,7 +180,7 @@ export class RestaurantService {
         message: 'Restaurants Founded Successfully',
         restaurants,
         totalRestaurants,
-        totalPages: Math.ceil(totalRestaurants / 10),
+        totalPages: Math.ceil(totalRestaurants / 6),
       };
     } catch (error) {
       return { ok: false, message: error.message };
@@ -190,7 +191,7 @@ export class RestaurantService {
   }: RestaurantInputType): Promise<RestaurantOutput> {
     try {
       const restaurant = await this.restaurant.findOne(restaurantId, {
-        relations: ['menu', 'orders'],
+        relations: ['menu', 'orders', 'category'],
       });
 
       return {
@@ -212,15 +213,23 @@ export class RestaurantService {
           where: {
             name: Raw((alias) => `${alias} ILIKE '%${query}%'`),
           },
-          skip: (page - 1) * 10,
-          take: 10,
+          skip: (page - 1) * 6,
+          take: 6,
+          relations: ['category'],
         });
+
+      if (restaurants && restaurants.length > 0) {
+        return {
+          ok: true,
+          message: 'Restaurants Founded Successfully',
+          restaurants,
+          totalRestaurants,
+          totalPages: Math.ceil(totalRestaurants / 6),
+        };
+      }
       return {
-        ok: true,
-        message: 'Restaurants Founded Successfully',
-        restaurants,
-        totalRestaurants,
-        totalPages: Math.ceil(totalRestaurants / 10),
+        ok: false,
+        message: 'No Restaurants Founded',
       };
     } catch (error) {
       return { ok: false, message: error.message };

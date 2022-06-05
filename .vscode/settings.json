@@ -1,26 +1,26 @@
-{
-  "files.exclude": {
-    "public": true,
-    ".gitignore": true,
-    "node_modules": true,
-    "yarn.lock": true,
-    "package-lock.json": true,
-    ".babelrc": true,
-    "index.html": true,
-    ".env": true,
-    "tsconfig.json": true,
-    ".eslintrc.json": true,
-    "test": true,
-    "README.md": true,
-    "tsconfig.build.json": true,
-    "nest-cli.json": true,
-    ".prettierrc": true,
-    ".eslintrc.js": true,
-    "dist": true,
-    "coverage": true,
-    ".env.prod": true,
-    ".env.test": true,
-    ".env.dev": true,
-    "package.json": true
-  }
-}
+// {
+//   "files.exclude": {
+//     "public": true,
+//     ".gitignore": true,
+//     "node_modules": true,
+//     "yarn.lock": true,
+//     "package-lock.json": true,
+//     ".babelrc": true,
+//     "index.html": true,
+//     ".env": true,
+//     "tsconfig.json": true,
+//     ".eslintrc.json": true,
+//     "test": true,
+//     "README.md": true,
+//     "tsconfig.build.json": true,
+//     "nest-cli.json": true,
+//     ".prettierrc": true,
+//     ".eslintrc.js": true,
+//     "dist": true,
+//     "coverage": true,
+//     ".env.prod": true,
+//     ".env.test": true,
+//     ".env.dev": true,
+//     "package.json": true
+//   }
+// }

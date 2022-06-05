@@ -79,6 +79,7 @@ enum UserRole {
   Owner
   Client
   Delivery
+  Admin
 }
 
 type Restaurant {

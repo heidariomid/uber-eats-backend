@@ -15,6 +15,7 @@ export enum UserRole {
   Owner = 'Owner',
   Client = 'Client',
   Delivery = 'Delivery',
+  Admin = 'Admin',
 }
 registerEnumType(UserRole, { name: 'UserRole' });
 @InputType('UserInput', { isAbstract: true })

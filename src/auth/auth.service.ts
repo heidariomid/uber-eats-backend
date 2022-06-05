@@ -40,7 +40,7 @@ export class AuthService {
       const verification = await this.usersValidation.save(
         this.usersValidation.create({ user }),
       );
-      this.mailService.sendVerificationMail(user?.email, verification?.code);
+      // this.mailService.sendVerificationMail(user?.email, verification?.code);
       return {
         ok: true,
         message: 'Account created',

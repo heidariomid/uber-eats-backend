@@ -9,7 +9,7 @@ import {
   ValidateEmailInput,
   ValidateEmailOutput,
 } from './args/userValidate.args';
-import { User } from './entities/users.entity';
+import { User, UserRole } from './entities/users.entity';
 import { UsersValidation } from './entities/usersValidation.entity';
 
 @Injectable()
@@ -42,7 +42,7 @@ export class UsersService {
 
   // update user
   async updateUser(
-    { id }: User,
+    { id, role }: User,
     newUser: UpdateUserInput,
   ): Promise<UpdateUserOutput> {
     try {
@@ -51,16 +51,28 @@ export class UsersService {
         throw new Error('User does not exist');
       }
       if (newUser?.email) {
-        user.email = newUser?.email;
-        user.verified = false;
-        this.usersValidation.delete({ user: { id: user.id } });
-        const validation = await this.usersValidation.save(
-          this.usersValidation.create({ user }),
-        );
-        this.mailService.sendVerificationMail(user?.email, validation?.code);
+        const isMailExist = await this.users.find({
+          where: { email: newUser.email },
+        });
+
+        if (isMailExist.length > 0) {
+          throw new Error('Email already exist');
+        } else {
+          user.email = newUser?.email;
+          user.verified = false;
+          this.usersValidation.delete({ user: { id: user.id } });
+          const validation = await this.usersValidation.save(
+            this.usersValidation.create({ user }),
+          );
+          console.log(validation.code);
+          // this.mailService.sendVerificationMail(user?.email, validation?.code);
+        }
+      }
+      if (role === UserRole.Admin) {
+        newUser?.role && (user.role = newUser?.role);
       }
       newUser?.password && (user.password = newUser?.password);
-      newUser?.role && (user.role = newUser?.role);
+
       await this.users.save(user);
       return { ok: true, message: 'User Updated Successfully' };
     } catch (error) {
