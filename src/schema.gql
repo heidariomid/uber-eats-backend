@@ -131,6 +131,7 @@ type CategoryOutput {
   ok: Boolean!
   totalPages: Int
   category: Category
+  restaurants: [Restaurant!]
 }
 
 type CreateRestaurantOutput {
@@ -255,6 +256,7 @@ type PaymentsOutput {
 
 type Query {
   getRestaurants(data: RestaurantsInput!): RestaurantsOutput!
+  getOwnerRestaurants(data: RestaurantsInput!): RestaurantsOutput!
   getRestaurant(data: RestaurantInputType!): RestaurantOutput!
   searchRestaurants(data: SearchRestaurantInput!): SearchRestaurantOutput!
   getCategories: CategoriesOutput!
@@ -308,14 +310,14 @@ input CreateRestaurantInput {
   name: String!
   coverImg: String!
   address: String!
-  categoryName: String!
+  categoryId: Float!
 }
 
 input EditRestaurantInput {
   name: String
   coverImg: String
   address: String
-  categoryName: String
+  categoryId: Float
   restaurantId: Float!
 }
 
@@ -323,7 +325,7 @@ input DeleteRestaurantInput {
   name: String
   coverImg: String
   address: String
-  categoryName: String
+  categoryId: Float
   restaurantId: Float!
 }
 

@@ -59,7 +59,7 @@ export class RestaurantService {
     try {
       const newRestaurant = this.restaurant.create(args);
       newRestaurant.owner = owner;
-      const category = await this.categories.getOrCreate(args.categoryName);
+      const category = await this.categories.findOne({ id: args.categoryId });
       newRestaurant.category = category;
       await this.restaurant.save(newRestaurant);
       return { ok: true, message: 'Restaurants Created successfully' };
@@ -81,8 +81,8 @@ export class RestaurantService {
         throw new Error('You are not authorized to edit this restaurant');
       }
       let category: Category = null;
-      if (args?.categoryName) {
-        category = await this.categories.getOrCreate(args.categoryName);
+      if (args?.categoryId) {
+        category = await this.categories.findOne({ id: args.categoryId });
       }
       await this.restaurant.save([
         {
@@ -147,8 +147,9 @@ export class RestaurantService {
       }
       const restaurants = await this.restaurant.find({
         where: { category },
-        skip: (page - 1) * 6,
-        take: 6,
+        relations: ['category'],
+        skip: (page - 1) * 9,
+        take: 9,
         order: {
           isPromoted: 'DESC',
         },
@@ -159,7 +160,8 @@ export class RestaurantService {
         ok: true,
         message: 'category Founded Successfully',
         category,
-        totalPages: Math.ceil(total / 6),
+        restaurants,
+        totalPages: Math.ceil(total / 9),
       };
     } catch (error) {
       return { ok: false, message: error.message };
@@ -169,8 +171,8 @@ export class RestaurantService {
     try {
       const [restaurants, totalRestaurants] =
         await this.restaurant.findAndCount({
-          skip: (page - 1) * 6,
-          take: 6,
+          skip: (page - 1) * 9,
+          take: 9,
           order: { isPromoted: 'DESC' },
           relations: ['category'],
         });
@@ -180,7 +182,35 @@ export class RestaurantService {
         message: 'Restaurants Founded Successfully',
         restaurants,
         totalRestaurants,
-        totalPages: Math.ceil(totalRestaurants / 6),
+        totalPages: Math.ceil(totalRestaurants / 9),
+      };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+  async getOwnerRestaurants(
+    owner: User,
+    { page }: RestaurantsInput,
+  ): Promise<RestaurantsOutput> {
+    try {
+      const [restaurants, totalRestaurants] =
+        await this.restaurant.findAndCount({
+          where: { owner },
+          skip: (page - 1) * 9,
+          take: 9,
+          order: { isPromoted: 'DESC' },
+          relations: ['category'],
+        });
+
+      if (restaurants.length === 0) {
+        throw new Error('Restaurants not found');
+      }
+      return {
+        ok: true,
+        message: 'Restaurants Founded Successfully',
+        restaurants,
+        totalRestaurants,
+        totalPages: Math.ceil(totalRestaurants / 9),
       };
     } catch (error) {
       return { ok: false, message: error.message };
@@ -191,7 +221,7 @@ export class RestaurantService {
   }: RestaurantInputType): Promise<RestaurantOutput> {
     try {
       const restaurant = await this.restaurant.findOne(restaurantId, {
-        relations: ['menu', 'orders', 'category'],
+        relations: ['menu', 'orders', 'category', 'owner'],
       });
 
       return {
@@ -213,8 +243,8 @@ export class RestaurantService {
           where: {
             name: Raw((alias) => `${alias} ILIKE '%${query}%'`),
           },
-          skip: (page - 1) * 6,
-          take: 6,
+          skip: (page - 1) * 9,
+          take: 9,
           relations: ['category'],
         });
 
@@ -224,7 +254,7 @@ export class RestaurantService {
           message: 'Restaurants Founded Successfully',
           restaurants,
           totalRestaurants,
-          totalPages: Math.ceil(totalRestaurants / 6),
+          totalPages: Math.ceil(totalRestaurants / 9),
         };
       }
       return {

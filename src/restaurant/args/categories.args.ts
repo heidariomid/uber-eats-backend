@@ -2,6 +2,7 @@ import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { CoreArgs } from 'src/common/core.args';
 import { PaginationInput, PaginationOutput } from 'src/common/pagination.args';
 import { Category } from '../entities/category.entity';
+import { Restaurant } from '../entities/restaurant.entity';
 
 @ObjectType()
 export class CategoriesOutput extends CoreArgs {
@@ -13,6 +14,8 @@ export class CategoriesOutput extends CoreArgs {
 export class CategoryOutput extends PaginationOutput {
   @Field(() => Category, { nullable: true })
   category?: Category;
+  @Field(() => [Restaurant], { nullable: true })
+  restaurants?: Restaurant[];
 }
 
 @InputType()
