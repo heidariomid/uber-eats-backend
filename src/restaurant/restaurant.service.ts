@@ -216,12 +216,29 @@ export class RestaurantService {
       return { ok: false, message: error.message };
     }
   }
-  async getRestaurant({
+  async getOwnerRestaurant({
     restaurantId,
   }: RestaurantInputType): Promise<RestaurantOutput> {
     try {
       const restaurant = await this.restaurant.findOne(restaurantId, {
         relations: ['menu', 'orders', 'category', 'owner'],
+      });
+
+      return {
+        ok: true,
+        message: 'Restaurant Founded Successfully',
+        restaurant,
+      };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+  async getRestaurant({
+    restaurantId,
+  }: RestaurantInputType): Promise<RestaurantOutput> {
+    try {
+      const restaurant = await this.restaurant.findOne(restaurantId, {
+        relations: ['menu', 'category'],
       });
 
       return {
@@ -273,6 +290,7 @@ export class RestaurantService {
     try {
       // find restaurant
       const restaurant = await this.restaurant.findOne(args.restaurantId);
+
       if (!restaurant) {
         throw new Error('Restaurant not found');
       }

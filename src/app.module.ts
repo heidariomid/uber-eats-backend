@@ -22,6 +22,7 @@ import { OrderItem } from './orders/entities/orderItem.entity';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entities/payments.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -92,6 +93,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     PaymentsModule,
     ScheduleModule.forRoot(),
+    UploadsModule,
   ],
   controllers: [],
   providers: [],

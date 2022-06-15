@@ -100,6 +100,14 @@ export class RestaurantResolver {
   ): Promise<RestaurantsOutput> {
     return await this.restaurantService.getOwnerRestaurants(owner, args);
   }
+  // get owner restaurant
+  @Query(() => RestaurantOutput)
+  @AuthorizeRole(['Owner'])
+  async getOwnerRestaurant(
+    @Args('data') args: RestaurantInputType,
+  ): Promise<RestaurantOutput> {
+    return await this.restaurantService.getOwnerRestaurant(args);
+  }
 
   // get restaurant by id
   @Query(() => RestaurantOutput)

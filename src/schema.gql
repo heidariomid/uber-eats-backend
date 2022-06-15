@@ -257,6 +257,7 @@ type PaymentsOutput {
 type Query {
   getRestaurants(data: RestaurantsInput!): RestaurantsOutput!
   getOwnerRestaurants(data: RestaurantsInput!): RestaurantsOutput!
+  getOwnerRestaurant(data: RestaurantInputType!): RestaurantOutput!
   getRestaurant(data: RestaurantInputType!): RestaurantOutput!
   searchRestaurants(data: SearchRestaurantInput!): SearchRestaurantOutput!
   getCategories: CategoriesOutput!
