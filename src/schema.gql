@@ -332,6 +332,7 @@ input DeleteRestaurantInput {
 
 input CreateDishInput {
   name: String!
+  photo: String
   description: String
   price: Int!
   options: [DishOptionInput!]
@@ -351,6 +352,7 @@ input DishChoiceInput {
 
 input EditDishInput {
   name: String
+  photo: String
   description: String
   price: Int
   options: [DishOptionInput!]
