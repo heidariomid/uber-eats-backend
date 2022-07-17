@@ -290,7 +290,6 @@ export class RestaurantService {
     try {
       // find restaurant
       const restaurant = await this.restaurant.findOne(args.restaurantId);
-
       if (!restaurant) {
         throw new Error('Restaurant not found');
       }
@@ -298,8 +297,13 @@ export class RestaurantService {
       if (owner.id !== restaurant.ownerId) {
         throw new Error('You are not authorized to create this dish');
       }
+
       // create new dish
       const dish = this.dishes.create({ ...args, restaurant });
+      if (!dish) {
+        throw new Error('Dish not created,something went wrong');
+      }
+
       await this.dishes.save(dish);
       // return result
       return { ok: true, message: 'Dish Created successfully' };
@@ -346,6 +350,7 @@ export class RestaurantService {
           ...args,
         },
       ]);
+
       return { ok: true, message: 'Dish Updated successfully' };
     } catch (error) {
       return { ok: false, message: error.message };

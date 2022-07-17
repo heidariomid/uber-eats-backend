@@ -6,10 +6,14 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 @InputType('OrderItemOptionInputType', { isAbstract: true })
 @ObjectType()
 export class OrderItemOption {
+  @Field(() => Number)
+  id: number;
   @Field(() => String)
   name: string;
-  @Field(() => String, { nullable: true })
-  choice?: string;
+
+  @Field(() => Number)
+  extra: number;
+
 }
 
 @InputType('OrderItemInputType', { isAbstract: true })

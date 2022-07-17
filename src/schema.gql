@@ -19,8 +19,9 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type OrderItemOption {
+  id: Float!
   name: String!
-  choice: String
+  extra: Float!
 }
 
 type OrderItem {
@@ -97,15 +98,10 @@ type Restaurant {
   promotedUntil: DateTime
 }
 
-type DishChoice {
-  name: String!
-  extra: Int
-}
-
 type DishOption {
+  id: Float!
   name: String!
-  choices: [DishChoice!]
-  extra: Int
+  extra: Int!
 }
 
 type Dish {
@@ -254,6 +250,12 @@ type PaymentsOutput {
   payments: [Payment!]
 }
 
+input DishOptionInput {
+  id: Float!
+  name: String!
+  extra: Int!
+}
+
 type Query {
   getRestaurants(data: RestaurantsInput!): RestaurantsOutput!
   getOwnerRestaurants(data: RestaurantsInput!): RestaurantsOutput!
@@ -339,17 +341,6 @@ input CreateDishInput {
   restaurantId: Int!
 }
 
-input DishOptionInput {
-  name: String!
-  choices: [DishChoiceInput!]
-  extra: Int
-}
-
-input DishChoiceInput {
-  name: String!
-  extra: Int
-}
-
 input EditDishInput {
   name: String
   photo: String
@@ -427,8 +418,9 @@ input DishInput {
 }
 
 input OrderItemOptionInputType {
+  id: Float!
   name: String!
-  choice: String
+  extra: Float!
 }
 
 input PaymentsInputType {
@@ -450,12 +442,17 @@ input ValidateEmailInput {
 
 input CreateOrderInput {
   restaurantId: Int!
+  totalPrice: Float!
   items: [CreateOrderItemInput!]!
 }
 
 input CreateOrderItemInput {
-  dishId: Int!
-  options: [OrderItemOptionInputType!]
+  id: Float!
+  name: String!
+  photo: String
+  description: String
+  price: Int!
+  options: [DishOptionInput!]
 }
 
 input EditOrderInput {

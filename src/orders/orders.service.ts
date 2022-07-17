@@ -35,9 +35,10 @@ export class OrdersService {
     private readonly dishes: Repository<Dish>,
     @Inject('PUB_SUB') private readonly pubsub: PubSub,
   ) {}
+
   async createOrder(
     customer: User,
-    { restaurantId, items }: CreateOrderInput,
+    { items, restaurantId, totalPrice }: CreateOrderInput,
   ): Promise<CreateOrderOutput> {
     try {
       // find restaurant
@@ -45,18 +46,13 @@ export class OrdersService {
       if (!restaurant) {
         throw new Error('Restaurant not found');
       }
-
-      // create order item
-      let totalPrice = 0;
       const orderItems: OrderItem[] = [];
       for (const item of items) {
-        const dish = await this.dishes.findOne(item.dishId);
+        const dish = await this.dishes.findOne(item.id);
         if (!dish) {
           throw new Error('Dish not found');
         }
-
-        let dishFinalPrice = dish.price;
-        for (const itemOption of item.options) {
+        for (const itemOption of item?.options) {
           const dishOption = dish.options.find(
             (dishOption) => dishOption.name === itemOption.name,
           );
@@ -64,20 +60,7 @@ export class OrdersService {
           if (!dishOption) {
             throw new Error('Dish Option not found');
           }
-          if (dishOption.extra) {
-            dishFinalPrice += dishOption.extra;
-          }
-          if (dishOption.choices) {
-            const dishOptionChoice = dishOption.choices.find(
-              (dishOptionChoice) => dishOptionChoice.name === itemOption.choice,
-            );
-            if (dishOptionChoice && dishOptionChoice.extra) {
-              dishFinalPrice += dishOptionChoice.extra;
-            }
-          }
         }
-        totalPrice += dishFinalPrice;
-
         const orderItemCreate = this.orderItem.create({
           dish,
           options: item.options,
