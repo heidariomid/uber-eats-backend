@@ -45,21 +45,23 @@ type Order {
 }
 
 enum OrderStatus {
-  Pending
   Cooking
   Cooked
   PickedUp
   Delivered
+  Failed
 }
 
 type Payment {
   id: Float!
   updatedAt: DateTime
   createdAt: DateTime
+  payment_method: String!
+  payment_amount: Float
   transactionId: String!
   user: User!
-  restaurant: Restaurant!
-  restaurantId: Int!
+  order: Order!
+  orderId: Int!
 }
 
 type User {
@@ -219,6 +221,7 @@ type loginOutput {
 type CreateOrderOutput {
   message: String
   ok: Boolean!
+  orderId: Int
 }
 
 type OrdersOutput {
@@ -242,6 +245,13 @@ type EditOrderOutput {
 type CreatePaymentOutput {
   message: String
   ok: Boolean!
+  url: String
+}
+
+type VerifyPaymentOutput {
+  message: String
+  ok: Boolean!
+  orderId: Float
 }
 
 type PaymentsOutput {
@@ -268,6 +278,8 @@ type Query {
   users: [User!]!
   loggedInUser: User!
   userProfile(userId: Float!): UserProfileOutput!
+  getOrders(data: OrdersInputFilter!): OrdersOutput!
+  getOrderById(data: OrderInputType!): OrderOutput!
   Payments: PaymentsOutput!
 }
 
@@ -289,6 +301,14 @@ input CategoryInputType {
   slug: String!
 }
 
+input OrdersInputFilter {
+  status: OrderStatus
+}
+
+input OrderInputType {
+  id: Float!
+}
+
 type Mutation {
   createRestaurant(data: CreateRestaurantInput!): CreateRestaurantOutput!
   editRestaurant(data: EditRestaurantInput!): EditRestaurantOutput!
@@ -301,12 +321,11 @@ type Mutation {
   validateEmail(data: ValidateEmailInput!): ValidateEmailOutput!
   createOrder(data: CreateOrderInput!): CreateOrderOutput!
   editOrder(data: EditOrderInput!): EditOrderOutput!
-  getOrders(data: OrdersInputFilter!): OrdersOutput!
-  getOrderById(data: OrderInputType!): OrderOutput!
   takeOrder(data: OrderInputType!): OrderOutput!
   createAccount(data: createAccountInput!): createAccountOutput!
   login(data: loginInput!): loginOutput!
   createPayment(data: CreatePaymentInputType!): CreatePaymentOutput!
+  verifyPayment(data: VerifyPaymentInputType!): VerifyPaymentOutput!
 }
 
 input CreateRestaurantInput {
@@ -424,10 +443,12 @@ input OrderItemOptionInputType {
 }
 
 input PaymentsInputType {
+  payment_method: String!
+  payment_amount: Float
   transactionId: String!
   user: UserInput!
-  restaurant: RestaurantInput!
-  restaurantId: Int!
+  order: OrdersInputType!
+  orderId: Int!
 }
 
 input UpdateUserInput {
@@ -460,14 +481,6 @@ input EditOrderInput {
   status: OrderStatus!
 }
 
-input OrdersInputFilter {
-  status: OrderStatus
-}
-
-input OrderInputType {
-  id: Float!
-}
-
 input createAccountInput {
   email: String!
   password: String!
@@ -480,13 +493,18 @@ input loginInput {
 }
 
 input CreatePaymentInputType {
+  payment_method: String!
+  orderId: Int!
+}
+
+input VerifyPaymentInputType {
   transactionId: String!
-  restaurantId: Int!
+  refID: String!
 }
 
 type Subscription {
   pendingOrders: Order!
   cookedOrders: Order!
-  updateOrders(data: OrderInputType!): Order!
+  updateOrders: Order!
   pendingPayments: Payment!
 }

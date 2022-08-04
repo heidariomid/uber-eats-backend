@@ -1,7 +1,7 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { IsString } from 'class-validator';
 import { CoreEntity } from 'src/common/core.entity';
-import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
+import { Order } from 'src/orders/entities/orders.entity';
 import { User } from 'src/users/entities/users.entity';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
@@ -9,6 +9,15 @@ import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 @ObjectType()
 @Entity()
 export class Payment extends CoreEntity {
+  @Field(() => String)
+  @Column()
+  @IsString()
+  payment_method: string;
+
+  @Field(() => Number, { nullable: true })
+  @Column('decimal', { nullable: true })
+  payment_amount?: number;
+
   @Field(() => String)
   @Column()
   @IsString()
@@ -21,14 +30,11 @@ export class Payment extends CoreEntity {
   @RelationId((payment: Payment) => payment.user)
   userId?: number;
 
-  @Field(() => Restaurant)
-  @ManyToOne(() => Restaurant)
-  restaurant: Restaurant;
+  @Field(() => Order)
+  @ManyToOne(() => Order)
+  order: Order;
 
   @Field(() => Int)
-  @RelationId((payment: Payment) => payment.restaurant)
-  restaurantId?: number;
-  ownerId: number;
-  isPromoted: boolean;
-  promotedUntil: Date;
+  @RelationId((payment: Payment) => payment.order)
+  orderId?: number;
 }

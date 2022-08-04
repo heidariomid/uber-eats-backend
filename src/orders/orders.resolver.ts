@@ -1,5 +1,5 @@
 import { Inject } from '@nestjs/common';
-import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { AuthorizeRole, AuthUser } from 'src/auth/auth.decorator';
 import {
@@ -49,7 +49,7 @@ export class OrdersResolver {
   }
 
   // get all orders
-  @Mutation(() => OrdersOutput)
+  @Query(() => OrdersOutput)
   @AuthorizeRole(['Any'])
   async getOrders(
     @AuthUser() user: User,
@@ -59,7 +59,7 @@ export class OrdersResolver {
   }
 
   // get order by id
-  @Mutation(() => OrderOutput)
+  @Query(() => OrderOutput)
   @AuthorizeRole(['Client', 'Owner'])
   async getOrderById(
     @AuthUser() user: User,
@@ -85,7 +85,6 @@ export class OrdersResolver {
   @Subscription(() => Order, {
     filter: ({ pendingOrders }, _, { user }) =>
       pendingOrders?.ownerId === user?.id,
-
     resolve: ({ pendingOrders }) => pendingOrders.order,
   })
   @AuthorizeRole(['Owner'])
@@ -101,25 +100,9 @@ export class OrdersResolver {
   }
 
   // update order
-  @Subscription(() => Order, {
-    filter: (
-      { updateOrders: order }: { updateOrders: Order },
-      { data }: { data: OrderInputType },
-      { user }: { user: User },
-    ) => {
-      if (
-        order?.driverId !== user.id &&
-        order.customerId !== user.id &&
-        order.restaurant.ownerId !== user.id
-      ) {
-        return false;
-      }
-
-      return order.id === data.id;
-    },
-  })
-  @AuthorizeRole(['Any'])
-  updateOrders(@Args('data') args: OrderInputType) {
+  @Subscription(() => Order)
+  // @AuthorizeRole(['Any'])
+  updateOrders() {
     return this.pubsub.asyncIterator(NEW_UPDATE_ORDER);
   }
 }

@@ -35,10 +35,19 @@ export class CreateOrderInput {
 
   @Field(() => [CreateOrderItemInput])
   items: CreateOrderItemInput[];
+
+  // @Field(() => [CreateOrderItemInput])
+  // dishOptionQuantity: CreateOrderItemInput[];
+
+  // @Field(() => [CreateOrderItemInput])
+  // dishQuantity: CreateOrderItemInput[];
 }
 
 @ObjectType()
-export class CreateOrderOutput extends CoreArgs {}
+export class CreateOrderOutput extends CoreArgs {
+  @Field(() => Int, { nullable: true })
+  orderId?: number;
+}
 
 // get orders
 @ObjectType()

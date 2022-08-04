@@ -7,8 +7,9 @@ import { User } from 'src/users/entities/users.entity';
 import {
   CreatePaymentInputType,
   CreatePaymentOutput,
-  PaymentsInput,
   PaymentsOutput,
+  VerifyPaymentInputType,
+  VerifyPaymentOutput,
 } from './args/payments.args';
 import { Payment } from './entities/payments.entity';
 import { PaymentsService } from './payments.service';
@@ -22,12 +23,22 @@ export class PaymentsResolver {
 
   // create payment
   @Mutation(() => CreatePaymentOutput)
-  @AuthorizeRole(['Owner'])
+  @AuthorizeRole(['Owner', 'Client'])
   async createPayment(
-    @AuthUser() owner: User,
+    @AuthUser() user: User,
     @Args('data') args: CreatePaymentInputType,
   ): Promise<CreatePaymentOutput> {
-    return await this.paymentsService.createPayment(owner, args);
+    return await this.paymentsService.createPayment(user, args);
+  }
+
+  // verify payment
+  @Mutation(() => VerifyPaymentOutput)
+  @AuthorizeRole(['Owner', 'Client'])
+  async verifyPayment(
+    @AuthUser() user: User,
+    @Args('data') args: VerifyPaymentInputType,
+  ): Promise<VerifyPaymentOutput> {
+    return await this.paymentsService.verifyPayment(user, args);
   }
 
   // get payment by id
@@ -46,7 +57,7 @@ export class PaymentsResolver {
 
     resolve: ({ pendingPayments }) => pendingPayments.payment,
   })
-  @AuthorizeRole(['Owner'])
+  @AuthorizeRole(['Owner', 'Client'])
   pendingPayments() {
     return this.pubsub.asyncIterator(NEW_PENDING_ORDER);
   }

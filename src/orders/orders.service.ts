@@ -46,19 +46,22 @@ export class OrdersService {
       if (!restaurant) {
         throw new Error('Restaurant not found');
       }
+
       const orderItems: OrderItem[] = [];
       for (const item of items) {
         const dish = await this.dishes.findOne(item.id);
         if (!dish) {
           throw new Error('Dish not found');
         }
-        for (const itemOption of item?.options) {
-          const dishOption = dish.options.find(
-            (dishOption) => dishOption.name === itemOption.name,
-          );
+        if (item?.options) {
+          for (const itemOption of item?.options) {
+            const dishOption = dish.options.find(
+              (dishOption) => dishOption.name === itemOption.name,
+            );
 
-          if (!dishOption) {
-            throw new Error('Dish Option not found');
+            if (!dishOption) {
+              throw new Error('Dish Option not found');
+            }
           }
         }
         const orderItemCreate = this.orderItem.create({
@@ -81,7 +84,11 @@ export class OrdersService {
       await this.pubsub.publish(NEW_PENDING_ORDER, {
         pendingOrders: { order, ownerId: restaurant.ownerId },
       });
-      return { ok: true, message: 'Order Created successfully' };
+      return {
+        ok: true,
+        message: 'Great ! Order Created successfully',
+        orderId: order.id,
+      };
     } catch (error) {
       return { ok: false, message: error.message };
     }
@@ -193,6 +200,7 @@ export class OrdersService {
         if (status) {
           orders = orders.filter((order: Order) => order.status === status);
         }
+
         return {
           ok: true,
           message: 'Orders Found successfully',

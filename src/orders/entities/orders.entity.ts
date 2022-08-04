@@ -20,11 +20,11 @@ import {
 import { OrderItem } from './orderItem.entity';
 
 export enum OrderStatus {
-  Pending = 'Pending',
   Cooking = 'Cooking',
   Cooked = 'Cooked',
   PickedUp = 'PickedUp',
   Delivered = 'Delivered',
+  Failed = 'Failed',
 }
 registerEnumType(OrderStatus, {
   name: 'OrderStatus',
@@ -73,7 +73,7 @@ export class Order extends CoreEntity {
   @Column({
     type: 'enum',
     enum: OrderStatus,
-    default: OrderStatus.Pending,
+    default: OrderStatus.Cooking,
   })
   @IsEnum(OrderStatus)
   status: OrderStatus;

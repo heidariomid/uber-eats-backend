@@ -56,6 +56,7 @@ import { UploadsModule } from './uploads/uploads.module';
             throw new Error('Missing auth token!');
           },
         },
+        'graphql-ws': true,
       },
       context: ({ req }) => req && { token: req.headers.authorization },
     }),
