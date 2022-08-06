@@ -30,7 +30,6 @@ export class AuthService {
     role,
   }: createAccountInput): Promise<createAccountOutput> {
     try {
-      console.log(email);
       const userExist = await this.users.findOne({ email });
       if (userExist) {
         throw new Error('User already exist');
