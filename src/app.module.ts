@@ -31,7 +31,7 @@ import { UploadsModule } from './uploads/uploads.module';
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod',
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('dev', 'test', 'prod').required(),
+        NODE_ENV: Joi.string().valid('dev', 'test', 'production').required(),
         PORT: Joi.number().default(3000),
         DB_HOST: Joi.string().default('localhost'),
         DB_PORT: Joi.number().required(),
