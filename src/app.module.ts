@@ -44,8 +44,8 @@ import { UploadsModule } from './uploads/uploads.module';
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      introspection: true,
-      playground: true,
+      introspection: process.env.NODE_ENV === 'production',
+      playground: process.env.NODE_ENV !== 'production',
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       subscriptions: {
@@ -78,7 +78,7 @@ import { UploadsModule } from './uploads/uploads.module';
       ssl: {
         rejectUnauthorized: false,
       },
-      // synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: process.env.NODE_ENV !== 'production',
       entities: [
         Restaurant,
         User,
