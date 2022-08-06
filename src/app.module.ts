@@ -33,11 +33,11 @@ import { UploadsModule } from './uploads/uploads.module';
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('dev', 'test', 'production').required(),
         PORT: Joi.number().default(3000),
-        DB_HOST: Joi.string().default('localhost'),
-        DB_PORT: Joi.number().required(),
-        DB_USER: Joi.string().required(),
-        DB_PASSWORD: Joi.string().required(),
-        DB_DATABASE: Joi.string().required(),
+        DB_HOST: Joi.string(),
+        DB_PORT: Joi.number(),
+        DB_USER: Joi.string(),
+        DB_PASSWORD: Joi.string(),
+        DB_DATABASE: Joi.string(),
         JWT_SECRET: Joi.string().required(),
         MAIL_API_KEY: Joi.string().required(),
         MAIL_DOMAIN_NAME: Joi.string().required(),
@@ -62,11 +62,15 @@ import { UploadsModule } from './uploads/uploads.module';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
+      ...(process.env.DATABASE_URL
+        ? { url: process.env.DATABASE_URL }
+        : {
+            host: process.env.DB_HOST,
+            port: +process.env.DB_PORT,
+            username: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_DATABASE,
+          }),
       schema: process.env.DB_SCEMA,
       logging: false,
       ssl: {
