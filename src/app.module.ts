@@ -44,6 +44,7 @@ import { UploadsModule } from './uploads/uploads.module';
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      introspection: true,
       playground: true,
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
