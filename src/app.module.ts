@@ -69,6 +69,7 @@ import { UploadsModule } from './uploads/uploads.module';
       database: process.env.DB_DATABASE,
       schema: process.env.DB_SCEMA,
       logging: false,
+      ssl: true,
       synchronize: process.env.NODE_ENV !== 'production',
       entities: [
         Restaurant,
