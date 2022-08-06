@@ -72,7 +72,7 @@ import { UploadsModule } from './uploads/uploads.module';
             password: process.env.DB_PASSWORD,
             database: process.env.DB_DATABASE,
           }),
-      schema: process.env.DB_SCEMA,
+      schema: process.env.DB_SCHEMA,
       logging: true,
       ssl: {
         rejectUnauthorized: false,
