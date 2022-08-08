@@ -32,7 +32,7 @@ import { UploadsModule } from './uploads/uploads.module';
       ignoreEnvFile: process.env.NODE_ENV === 'production',
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('dev', 'test', 'production').required(),
-        PORT: Joi.number().default(3000),
+        PORT: Joi.number().default(4000),
         DB_HOST: Joi.string(),
         DB_PORT: Joi.number(),
         DB_USER: Joi.string(),
@@ -73,11 +73,11 @@ import { UploadsModule } from './uploads/uploads.module';
             password: process.env.DB_PASSWORD,
             database: process.env.DB_DATABASE,
           }),
+      ...(process.env.NODE_ENV === 'production'
+        ? { ssl: { rejectUnauthorized: false } }
+        : null),
       schema: process.env.DB_SCHEMA,
-      logging: true,
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      logging: false,
       synchronize: process.env.NODE_ENV !== 'production',
       entities: [
         Restaurant,
