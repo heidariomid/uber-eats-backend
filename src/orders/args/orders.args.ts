@@ -11,19 +11,21 @@ import { PaginationOutput } from 'src/common/pagination.args';
 import { Dish } from 'src/restaurant/entities/dish.entity';
 import { Order, OrderStatus } from '../entities/orders.entity';
 
-//create custom
-@InputType()
-//create custom
-@InputType()
-class CreateOrderItemInput extends PickType(Dish, [
-  'id',
-  'name',
-  'description',
-  'photo',
-  'options',
-  'price',
-]) {}
+@InputType('DishQuantityInputType', { isAbstract: true })
+export class DishQuantity {
+  @Field(() => Number)
+  id: number;
+  @Field(() => Number)
+  quantity: number;
+}
 
+@InputType('DishOptionQuantitInputType', { isAbstract: true })
+export class DishOptionQuantity {
+  @Field(() => Number)
+  id: number;
+  @Field(() => Number)
+  quantity: number;
+}
 //create
 @InputType()
 export class CreateOrderInput {
@@ -33,14 +35,11 @@ export class CreateOrderInput {
   @Field(() => Number)
   totalPrice: number;
 
-  @Field(() => [CreateOrderItemInput])
-  items: CreateOrderItemInput[];
+  @Field(() => [DishOptionQuantity], { nullable: true })
+  dishOptionQuantity: [DishOptionQuantity];
 
-  // @Field(() => [CreateOrderItemInput])
-  // dishOptionQuantity: CreateOrderItemInput[];
-
-  // @Field(() => [CreateOrderItemInput])
-  // dishQuantity: CreateOrderItemInput[];
+  @Field(() => [DishQuantity])
+  dishQuantity: [DishQuantity];
 }
 
 @ObjectType()

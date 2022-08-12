@@ -20,6 +20,8 @@ export class DishOption {
   name: string;
   @Field(() => Int)
   extra: number;
+  @Field(() => Int)
+  quantity: number;
 }
 
 @InputType('DishInput', { isAbstract: true })

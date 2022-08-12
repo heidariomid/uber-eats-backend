@@ -18,7 +18,6 @@ import { Category } from './restaurant/entities/category.entity';
 import { Dish } from './restaurant/entities/dish.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Order } from './orders/entities/orders.entity';
-import { OrderItem } from './orders/entities/orderItem.entity';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/entities/payments.entity';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -44,7 +43,7 @@ import { UploadsModule } from './uploads/uploads.module';
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      introspection: process.env.NODE_ENV === 'production',
+      // introspection: process.env.NODE_ENV === 'production',
       playground: process.env.NODE_ENV !== 'production',
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
@@ -86,7 +85,6 @@ import { UploadsModule } from './uploads/uploads.module';
         Category,
         Dish,
         Order,
-        OrderItem,
         Payment,
       ],
     }),

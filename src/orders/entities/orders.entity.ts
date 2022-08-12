@@ -9,15 +9,7 @@ import { IsEnum, IsNumber } from 'class-validator';
 import { CoreEntity } from 'src/common/core.entity';
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
 import { User } from 'src/users/entities/users.entity';
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  RelationId,
-} from 'typeorm';
-import { OrderItem } from './orderItem.entity';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
 export enum OrderStatus {
   Cooking = 'Cooking',
@@ -29,6 +21,38 @@ export enum OrderStatus {
 registerEnumType(OrderStatus, {
   name: 'OrderStatus',
 });
+
+@InputType('OrderItemInputType', { isAbstract: true })
+@ObjectType()
+export class OrderItem {
+  @Field(() => Number)
+  id: number;
+  @Field(() => Number)
+  quantity: number;
+  @Field(() => String)
+  photo: string;
+  @Field(() => String)
+  name: string;
+  @Field(() => Number)
+  price: number;
+  @Field(() => Number)
+  restaurantId: number;
+}
+
+@InputType('OrderOptionItemInputType', { isAbstract: true })
+@ObjectType()
+export class OrderOptionItem {
+  @Field(() => Number)
+  id: number;
+  @Field(() => Number)
+  quantity: number;
+  @Field(() => String)
+  name: string;
+  @Field(() => Number)
+  extra: number;
+  @Field(() => Number)
+  dishId: number;
+}
 
 @InputType('OrdersInputType', { isAbstract: true })
 @ObjectType()
@@ -65,9 +89,12 @@ export class Order extends CoreEntity {
   restaurant?: Restaurant;
 
   @Field(() => [OrderItem])
-  @ManyToMany(() => OrderItem, { eager: true })
-  @JoinTable()
+  @Column('json')
   items: OrderItem[];
+
+  @Field(() => [OrderOptionItem], { nullable: true })
+  @Column('json', { nullable: true })
+  options?: OrderOptionItem[];
 
   @Field(() => OrderStatus)
   @Column({

@@ -20,7 +20,6 @@ import {
   OrdersInputFilter,
   OrdersOutput,
 } from './args/orders.args';
-import { OrderItem } from './entities/orderItem.entity';
 import { Order, OrderStatus } from './entities/orders.entity';
 
 @Injectable()
@@ -29,16 +28,20 @@ export class OrdersService {
     @InjectRepository(Order) private readonly orders: Repository<Order>,
     @InjectRepository(Restaurant)
     private readonly restaurant: Repository<Restaurant>,
-    @InjectRepository(OrderItem)
-    private readonly orderItem: Repository<OrderItem>,
     @InjectRepository(Dish)
     private readonly dishes: Repository<Dish>,
     @Inject('PUB_SUB') private readonly pubsub: PubSub,
   ) {}
 
+  // ----------------------------------------------------------createOrder-----------------------------------------------
   async createOrder(
     customer: User,
-    { items, restaurantId, totalPrice }: CreateOrderInput,
+    {
+      restaurantId,
+      totalPrice,
+      dishQuantity,
+      dishOptionQuantity,
+    }: CreateOrderInput,
   ): Promise<CreateOrderOutput> {
     try {
       // find restaurant
@@ -47,37 +50,53 @@ export class OrdersService {
         throw new Error('Restaurant not found');
       }
 
-      const orderItems: OrderItem[] = [];
-      for (const item of items) {
+      const items = [];
+      const options = [];
+      for (const item of dishQuantity) {
         const dish = await this.dishes.findOne(item.id);
+
         if (!dish) {
           throw new Error('Dish not found');
         }
-        if (item?.options) {
-          for (const itemOption of item?.options) {
-            const dishOption = dish.options.find(
-              (dishOption) => dishOption.name === itemOption.name,
-            );
 
-            if (!dishOption) {
-              throw new Error('Dish Option not found');
+        if (dish?.options) {
+          dishOptionQuantity?.map(async (dishOption) => {
+            const dishOptionId = dishOption.id;
+
+            const dishOptionFind = dish?.options?.find((option) => {
+              return option.id === dishOptionId;
+            });
+
+            if (dishOptionFind) {
+              const optionsItem = {
+                ...dishOptionFind,
+                quantity: dishOption.quantity,
+                dishId: dish.id,
+              };
+
+              options.push(optionsItem);
             }
-          }
+          });
         }
-        const orderItemCreate = this.orderItem.create({
-          dish,
-          options: item.options,
-        });
-        const orderItem = await this.orderItem.save(orderItemCreate);
-        orderItems.push(orderItem);
+
+        const orderItem = {
+          id: dish.id,
+          name: dish.name,
+          photo: dish.photo,
+          price: dish.price,
+          restaurantId,
+          quantity: item.quantity,
+        };
+
+        items.push(orderItem);
       }
 
-      // create order
       const orderCreate = this.orders.create({
         customer,
         restaurant,
         totalPrice,
-        items: orderItems,
+        items,
+        options,
       });
 
       const order = await this.orders.save(orderCreate);
@@ -93,7 +112,7 @@ export class OrdersService {
       return { ok: false, message: error.message };
     }
   }
-
+  // ----------------------------------------------------------editOrder-----------------------------------------------
   async editOrder(
     user: User,
     { id: orderId, status }: EditOrderInput,

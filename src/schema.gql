@@ -18,18 +18,21 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type OrderItemOption {
-  id: Float!
-  name: String!
-  extra: Float!
-}
-
 type OrderItem {
   id: Float!
-  updatedAt: DateTime
-  createdAt: DateTime
-  dish: Dish!
-  options: [OrderItemOption!]
+  quantity: Float!
+  photo: String!
+  name: String!
+  price: Float!
+  restaurantId: Float!
+}
+
+type OrderOptionItem {
+  id: Float!
+  quantity: Float!
+  name: String!
+  extra: Float!
+  dishId: Float!
 }
 
 type Order {
@@ -40,6 +43,7 @@ type Order {
   driver: User
   restaurant: Restaurant
   items: [OrderItem!]!
+  options: [OrderOptionItem!]
   status: OrderStatus!
   totalPrice: Float
 }
@@ -104,6 +108,7 @@ type DishOption {
   id: Float!
   name: String!
   extra: Int!
+  quantity: Int!
 }
 
 type Dish {
@@ -264,6 +269,7 @@ input DishOptionInput {
   id: Float!
   name: String!
   extra: Int!
+  quantity: Int!
 }
 
 type Query {
@@ -418,28 +424,26 @@ input OrdersInputType {
   driver: UserInput
   restaurant: RestaurantInput
   items: [OrderItemInputType!]!
+  options: [OrderOptionItemInputType!]
   status: OrderStatus!
   totalPrice: Float
 }
 
 input OrderItemInputType {
-  dish: DishInput!
-  options: [OrderItemOptionInputType!]
-}
-
-input DishInput {
-  name: String!
-  photo: String
-  description: String
-  price: Int!
-  restaurant: RestaurantInput!
-  options: [DishOptionInput!]
-}
-
-input OrderItemOptionInputType {
   id: Float!
+  quantity: Float!
+  photo: String!
+  name: String!
+  price: Float!
+  restaurantId: Float!
+}
+
+input OrderOptionItemInputType {
+  id: Float!
+  quantity: Float!
   name: String!
   extra: Float!
+  dishId: Float!
 }
 
 input PaymentsInputType {
@@ -449,6 +453,15 @@ input PaymentsInputType {
   user: UserInput!
   order: OrdersInputType!
   orderId: Int!
+}
+
+input DishInput {
+  name: String!
+  photo: String
+  description: String
+  price: Int!
+  restaurant: RestaurantInput!
+  options: [DishOptionInput!]
 }
 
 input UpdateUserInput {
@@ -464,16 +477,18 @@ input ValidateEmailInput {
 input CreateOrderInput {
   restaurantId: Int!
   totalPrice: Float!
-  items: [CreateOrderItemInput!]!
+  dishOptionQuantity: [DishOptionQuantitInputType!]
+  dishQuantity: [DishQuantityInputType!]!
 }
 
-input CreateOrderItemInput {
+input DishOptionQuantitInputType {
   id: Float!
-  name: String!
-  photo: String
-  description: String
-  price: Int!
-  options: [DishOptionInput!]
+  quantity: Float!
+}
+
+input DishQuantityInputType {
+  id: Float!
+  quantity: Float!
 }
 
 input EditOrderInput {
