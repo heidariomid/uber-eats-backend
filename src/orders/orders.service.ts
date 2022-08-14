@@ -202,6 +202,7 @@ export class OrdersService {
       if (user.role === UserRole.Client) {
         orders = await this.orders.find({
           where: { customer: user, ...(status && { status }) },
+          order: { createdAt: 'DESC' },
         });
         return { ok: true, message: 'Orders Found successfully', orders };
       } else if (user.role === UserRole.Delivery) {

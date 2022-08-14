@@ -17,7 +17,10 @@ export class CreateRestaurantInput extends PickType(Restaurant, [
 export class CreateRestaurantOutput extends CoreArgs {}
 
 @InputType()
-export class RestaurantsInput extends PaginationInput {}
+export class RestaurantsInput extends PaginationInput {
+  @Field(() => String, { nullable: true })
+  slug?: string;
+}
 
 @ObjectType()
 export class RestaurantsOutput extends PaginationOutput {

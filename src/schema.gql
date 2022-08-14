@@ -8,7 +8,7 @@ type Category {
   createdAt: DateTime
   name: String!
   iconImg: String
-  slug: String!
+  slug: String
   restaurants: [Restaurant!]!
   restaurantCount: Int!
 }
@@ -135,6 +135,11 @@ type CategoryOutput {
   totalPages: Int
   category: Category
   restaurants: [Restaurant!]
+}
+
+type CreateCategoryOutput {
+  message: String
+  ok: Boolean!
 }
 
 type CreateRestaurantOutput {
@@ -291,6 +296,7 @@ type Query {
 
 input RestaurantsInput {
   page: Int = 1
+  slug: String
 }
 
 input RestaurantInputType {
@@ -319,6 +325,7 @@ type Mutation {
   createRestaurant(data: CreateRestaurantInput!): CreateRestaurantOutput!
   editRestaurant(data: EditRestaurantInput!): EditRestaurantOutput!
   deleteRestaurant(data: DeleteRestaurantInput!): DeleteRestaurantOutput!
+  createCategory(data: CreateCategoryInput!): CreateCategoryOutput!
   createDishe(data: CreateDishInput!): CreateDishOutput!
   deleteDish(dishId: Float!): DeleteDishOutput!
   editDish(data: EditDishInput!): EditDishOutput!
@@ -355,6 +362,12 @@ input DeleteRestaurantInput {
   address: String
   categoryId: Float
   restaurantId: Float!
+}
+
+input CreateCategoryInput {
+  name: String!
+  iconImg: String
+  slug: String
 }
 
 input CreateDishInput {
@@ -404,7 +417,7 @@ input RestaurantInput {
 input CategoryInput {
   name: String!
   iconImg: String
-  slug: String!
+  slug: String
   restaurants: [RestaurantInput!]!
 }
 

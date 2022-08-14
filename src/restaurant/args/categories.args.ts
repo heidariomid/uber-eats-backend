@@ -1,4 +1,4 @@
-import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType, PickType } from '@nestjs/graphql';
 import { CoreArgs } from 'src/common/core.args';
 import { PaginationInput, PaginationOutput } from 'src/common/pagination.args';
 import { Category } from '../entities/category.entity';
@@ -23,3 +23,16 @@ export class CategoryInputType extends PaginationInput {
   @Field(() => String)
   slug: string;
 }
+
+//create
+@InputType()
+export class CreateCategoryInput extends PickType(Category, [
+  'name',
+  'iconImg',
+]) {
+  @Field(() => String, { nullable: true })
+  slug?: string;
+}
+
+@ObjectType()
+export class CreateCategoryOutput extends CoreArgs {}

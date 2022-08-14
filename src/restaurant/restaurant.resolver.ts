@@ -13,6 +13,8 @@ import {
   CategoriesOutput,
   CategoryInputType,
   CategoryOutput,
+  CreateCategoryInput,
+  CreateCategoryOutput,
 } from './args/categories.args';
 import {
   DeleteRestaurantInput,
@@ -142,6 +144,15 @@ export class CategoryResolver {
     @Args('data') args: CategoryInputType,
   ): Promise<CategoryOutput> {
     return await this.restaurantService.getCategory(args);
+  }
+
+  @Mutation(() => CreateCategoryOutput)
+  @AuthorizeRole(['Admin'])
+  async createCategory(
+    @AuthUser() admin: User,
+    @Args('data') args: CreateCategoryInput,
+  ): Promise<CreateCategoryOutput> {
+    return await this.restaurantService.createCategory(admin, args);
   }
 }
 

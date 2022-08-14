@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/users.entity';
+import { User, UserRole } from 'src/users/entities/users.entity';
 import { Raw, Repository } from 'typeorm';
 import {
   CategoriesOutput,
   CategoryInputType,
   CategoryOutput,
+  CreateCategoryInput,
+  CreateCategoryOutput,
 } from './args/categories.args';
 import {
   DeleteRestaurantInput,
@@ -118,7 +120,9 @@ export class RestaurantService {
 
   async getCategories(): Promise<CategoriesOutput> {
     try {
-      const categories = await this.categories.find();
+      const categories = await this.categories.find({
+        order: { createdAt: 'DESC' },
+      });
       if (!categories) {
         throw new Error('Categories not found');
       }
@@ -141,6 +145,22 @@ export class RestaurantService {
     page,
   }: CategoryInputType): Promise<CategoryOutput> {
     try {
+      if (slug === 'all') {
+        const restaurants = await this.restaurant.find({
+          relations: ['category'],
+          skip: (page - 1) * 9,
+          take: 9,
+          order: {
+            isPromoted: 'DESC',
+          },
+        });
+        return {
+          ok: true,
+          message: 'Restaurants Founded Successfully',
+          restaurants,
+        };
+      }
+
       const category = await this.categories.findOne({ slug });
       if (!category) {
         throw new Error('category not found');
@@ -167,7 +187,10 @@ export class RestaurantService {
       return { ok: false, message: error.message };
     }
   }
-  async getRestaurants({ page }: RestaurantsInput): Promise<RestaurantsOutput> {
+  async getRestaurants({
+    page,
+    slug,
+  }: RestaurantsInput): Promise<RestaurantsOutput> {
     try {
       const [restaurants, totalRestaurants] =
         await this.restaurant.findAndCount({
@@ -175,6 +198,9 @@ export class RestaurantService {
           take: 9,
           order: { isPromoted: 'DESC' },
           relations: ['category'],
+          where: {
+            ...(slug && slug !== 'all' && { category: { slug } }),
+          },
         });
 
       return {
@@ -263,6 +289,7 @@ export class RestaurantService {
           skip: (page - 1) * 9,
           take: 9,
           relations: ['category'],
+          order: { isPromoted: 'DESC' },
         });
 
       if (restaurants && restaurants.length > 0) {
@@ -278,6 +305,22 @@ export class RestaurantService {
         ok: false,
         message: 'No Restaurants Founded',
       };
+    } catch (error) {
+      return { ok: false, message: error.message };
+    }
+  }
+
+  async createCategory(
+    admin: User,
+    args: CreateCategoryInput,
+  ): Promise<CreateCategoryOutput> {
+    try {
+      if (UserRole.Admin !== admin.role) {
+        throw new Error('You are not authorized to create category');
+      }
+      const newCategory = await this.categories.create(args);
+      await this.categories.save(newCategory);
+      return { ok: true, message: 'Category Created successfully' };
     } catch (error) {
       return { ok: false, message: error.message };
     }
