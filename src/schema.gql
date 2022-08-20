@@ -19,7 +19,7 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type OrderItem {
-  id: Float!
+  id: String!
   quantity: Float!
   photo: String!
   name: String!
@@ -28,7 +28,7 @@ type OrderItem {
 }
 
 type OrderOptionItem {
-  id: Float!
+  id: String!
   quantity: Float!
   name: String!
   extra: Float!
@@ -46,6 +46,7 @@ type Order {
   options: [OrderOptionItem!]
   status: OrderStatus!
   totalPrice: Float
+  address: AddressItem
 }
 
 enum OrderStatus {
@@ -68,14 +69,27 @@ type Payment {
   orderId: Int!
 }
 
+type AddressItem {
+  id: String!
+  address: String!
+  apartment: String!
+  postalCode: Float!
+  region: String!
+  city: String!
+}
+
 type User {
   id: Float!
   updatedAt: DateTime
   createdAt: DateTime
   email: String!
+  firstName: String!
+  lastName: String!
+  mobile: String!
   password: String!
   role: UserRole!
   verified: Boolean!
+  address: [AddressItem!]
   restaurants: [Restaurant!]!
   orders: [Order!]!
   payments: [Payment!]!
@@ -105,7 +119,7 @@ type Restaurant {
 }
 
 type DishOption {
-  id: Float!
+  id: String!
   name: String!
   extra: Int!
   quantity: Int!
@@ -271,7 +285,7 @@ type PaymentsOutput {
 }
 
 input DishOptionInput {
-  id: Float!
+  id: String!
   name: String!
   extra: Int!
   quantity: Int!
@@ -393,13 +407,26 @@ input addUserArgs {
   updatedAt: DateTime
   createdAt: DateTime
   email: String!
+  firstName: String!
+  lastName: String!
+  mobile: String!
   password: String!
   role: UserRole!
   verified: Boolean!
+  address: [AddressItemObjectType!]
   restaurants: [RestaurantInput!]!
   orders: [OrdersInputType!]!
   payments: [PaymentsInputType!]!
   rides: [OrdersInputType!]!
+}
+
+input AddressItemObjectType {
+  id: String!
+  address: String!
+  apartment: String!
+  postalCode: Float!
+  region: String!
+  city: String!
 }
 
 input RestaurantInput {
@@ -423,9 +450,13 @@ input CategoryInput {
 
 input UserInput {
   email: String!
+  firstName: String!
+  lastName: String!
+  mobile: String!
   password: String!
   role: UserRole!
   verified: Boolean!
+  address: [AddressItemObjectType!]
   restaurants: [RestaurantInput!]!
   orders: [OrdersInputType!]!
   payments: [PaymentsInputType!]!
@@ -440,10 +471,11 @@ input OrdersInputType {
   options: [OrderOptionItemInputType!]
   status: OrderStatus!
   totalPrice: Float
+  address: AddressItemObjectType
 }
 
 input OrderItemInputType {
-  id: Float!
+  id: String!
   quantity: Float!
   photo: String!
   name: String!
@@ -452,7 +484,7 @@ input OrderItemInputType {
 }
 
 input OrderOptionItemInputType {
-  id: Float!
+  id: String!
   quantity: Float!
   name: String!
   extra: Float!
@@ -492,10 +524,11 @@ input CreateOrderInput {
   totalPrice: Float!
   dishOptionQuantity: [DishOptionQuantitInputType!]
   dishQuantity: [DishQuantityInputType!]!
+  userAddress: AddressItemObjectType!
 }
 
 input DishOptionQuantitInputType {
-  id: Float!
+  id: String!
   quantity: Float!
 }
 
@@ -511,6 +544,9 @@ input EditOrderInput {
 
 input createAccountInput {
   email: String!
+  firstName: String!
+  lastName: String!
+  mobile: String!
   password: String!
   role: UserRole!
 }

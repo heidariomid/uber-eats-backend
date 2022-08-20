@@ -8,8 +8,22 @@ import {
 } from '@nestjs/graphql';
 import { CoreArgs } from 'src/common/core.args';
 import { PaginationOutput } from 'src/common/pagination.args';
-import { Dish } from 'src/restaurant/entities/dish.entity';
+import { AddressItem } from 'src/users/entities/users.entity';
 import { Order, OrderStatus } from '../entities/orders.entity';
+
+// @InputType('AddressItemInputType', { isAbstract: true })
+// class AddressItem {
+//   @Field(() => String)
+//   address: string;
+//   @Field(() => String)
+//   apartment: string;
+//   @Field(() => Number)
+//   postalCode: number;
+//   @Field(() => String)
+//   region: string;
+//   @Field(() => String)
+//   city: string;
+// }
 
 @InputType('DishQuantityInputType', { isAbstract: true })
 export class DishQuantity {
@@ -21,8 +35,8 @@ export class DishQuantity {
 
 @InputType('DishOptionQuantitInputType', { isAbstract: true })
 export class DishOptionQuantity {
-  @Field(() => Number)
-  id: number;
+  @Field(() => String)
+  id: string;
   @Field(() => Number)
   quantity: number;
 }
@@ -40,6 +54,9 @@ export class CreateOrderInput {
 
   @Field(() => [DishQuantity])
   dishQuantity: [DishQuantity];
+
+  @Field(() => AddressItem)
+  userAddress: AddressItem;
 }
 
 @ObjectType()

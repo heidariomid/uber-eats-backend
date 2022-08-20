@@ -28,19 +28,29 @@ export class AuthService {
     email,
     password,
     role,
+    firstName,
+    lastName,
+    mobile,
   }: createAccountInput): Promise<createAccountOutput> {
     try {
-      const userExist = await this.users.findOne({ email });
-      if (userExist) {
-        throw new Error('User already exist');
+      const userExist = await this.users.find({ email, mobile });
+      if (userExist.length > 0) {
+        throw new Error('User already exists');
       }
       const user = await this.users.save(
-        this.users.create({ email, password, role }),
+        this.users.create({
+          email,
+          password,
+          role,
+          firstName,
+          lastName,
+          mobile,
+        }),
       );
       const verification = await this.usersValidation.save(
         this.usersValidation.create({ user }),
       );
-      // this.mailService.sendVerificationMail(user?.email, verification?.code);
+      this.mailService.sendVerificationMail(user?.email, verification?.code);
       return {
         ok: true,
         message: 'Account created',

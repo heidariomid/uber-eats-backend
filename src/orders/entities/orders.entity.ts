@@ -8,7 +8,7 @@ import {
 import { IsEnum, IsNumber } from 'class-validator';
 import { CoreEntity } from 'src/common/core.entity';
 import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
-import { User } from 'src/users/entities/users.entity';
+import { AddressItem, User } from 'src/users/entities/users.entity';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 
 export enum OrderStatus {
@@ -25,8 +25,8 @@ registerEnumType(OrderStatus, {
 @InputType('OrderItemInputType', { isAbstract: true })
 @ObjectType()
 export class OrderItem {
-  @Field(() => Number)
-  id: number;
+  @Field(() => String)
+  id: string;
   @Field(() => Number)
   quantity: number;
   @Field(() => String)
@@ -42,8 +42,8 @@ export class OrderItem {
 @InputType('OrderOptionItemInputType', { isAbstract: true })
 @ObjectType()
 export class OrderOptionItem {
-  @Field(() => Number)
-  id: number;
+  @Field(() => String)
+  id: string;
   @Field(() => Number)
   quantity: number;
   @Field(() => String)
@@ -109,4 +109,8 @@ export class Order extends CoreEntity {
   @Column({ type: 'float', nullable: true })
   @IsNumber()
   totalPrice?: number;
+
+  @Column('json', { nullable: true })
+  @Field(() => AddressItem, { nullable: true })
+  address?: AddressItem;
 }

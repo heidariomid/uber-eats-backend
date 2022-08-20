@@ -53,7 +53,7 @@ export class UsersResolver {
     return await this.usersService.updateUser(user, args);
   }
 
-  // add user
+  // validate email user
   @Mutation(() => ValidateEmailOutput)
   async validateEmail(
     @Args('data') args: ValidateEmailInput,

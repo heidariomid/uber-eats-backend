@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { v4 as uuid } from 'uuid';
 import { PubSub } from 'graphql-subscriptions';
 import {
   NEW_COOKED_ORDER,
@@ -26,6 +27,7 @@ import { Order, OrderStatus } from './entities/orders.entity';
 export class OrdersService {
   constructor(
     @InjectRepository(Order) private readonly orders: Repository<Order>,
+    @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(Restaurant)
     private readonly restaurant: Repository<Restaurant>,
     @InjectRepository(Dish)
@@ -41,9 +43,35 @@ export class OrdersService {
       totalPrice,
       dishQuantity,
       dishOptionQuantity,
+      userAddress,
     }: CreateOrderInput,
   ): Promise<CreateOrderOutput> {
     try {
+      const user = await this.users.findOne({ id: customer.id });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      let newAddresses = [];
+
+      if (user?.address) {
+        if (user.address.find((item) => item.id === userAddress.id)) {
+          newAddresses = [...user.address];
+        } else {
+          newAddresses = [...user.address, userAddress];
+        }
+      } else {
+        newAddresses.push(userAddress);
+      }
+
+      const saveAddress = await this.users.update(
+        { id: user.id },
+        { address: newAddresses },
+      );
+
+      if (!saveAddress) {
+        throw new Error('Address not saved');
+      }
+
       // find restaurant
       const restaurant = await this.restaurant.findOne(restaurantId);
       if (!restaurant) {
@@ -97,6 +125,7 @@ export class OrdersService {
         totalPrice,
         items,
         options,
+        address: userAddress,
       });
 
       const order = await this.orders.save(orderCreate);

@@ -202,7 +202,9 @@ export class RestaurantService {
             ...(slug && slug !== 'all' && { category: { slug } }),
           },
         });
-
+      if (restaurants.length === 0) {
+        throw new Error('Restaurants not found');
+      }
       return {
         ok: true,
         message: 'Restaurants Founded Successfully',
