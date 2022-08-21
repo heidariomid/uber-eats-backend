@@ -53,7 +53,6 @@ export class OrdersService {
       }
 
       let newAddresses = [];
-
       if (user?.address) {
         if (user.address.find((item) => item.id === userAddress.id)) {
           newAddresses = [...user.address];
