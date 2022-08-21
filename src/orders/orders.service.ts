@@ -51,6 +51,7 @@ export class OrdersService {
       if (!user) {
         throw new Error('User not found');
       }
+
       let newAddresses = [];
 
       if (user?.address) {
