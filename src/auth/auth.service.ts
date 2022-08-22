@@ -65,6 +65,7 @@ export class AuthService {
 
   async login({ email, password }: loginInput): Promise<loginOutput> {
     try {
+      console.log(email, password);
       const user = await this.users.findOne(
         { email },
         { select: ['id', 'password'] },
