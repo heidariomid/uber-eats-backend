@@ -147,12 +147,12 @@ export class CategoryResolver {
   }
 
   @Mutation(() => CreateCategoryOutput)
-  @AuthorizeRole(['Admin'])
+  @AuthorizeRole(['Owner'])
   async createCategory(
-    @AuthUser() admin: User,
+    @AuthUser() user: User,
     @Args('data') args: CreateCategoryInput,
   ): Promise<CreateCategoryOutput> {
-    return await this.restaurantService.createCategory(admin, args);
+    return await this.restaurantService.createCategory(user, args);
   }
 }
 

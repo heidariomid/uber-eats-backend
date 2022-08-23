@@ -313,14 +313,14 @@ export class RestaurantService {
   }
 
   async createCategory(
-    admin: User,
+    user: User,
     args: CreateCategoryInput,
   ): Promise<CreateCategoryOutput> {
     try {
-      if (UserRole.Admin !== admin.role) {
+      if (UserRole.Owner !== user.role) {
         throw new Error('You are not authorized to create category');
       }
-      const newCategory = await this.categories.create(args);
+      const newCategory = await this.categories.getOrCreate(args);
       await this.categories.save(newCategory);
       return { ok: true, message: 'Category Created successfully' };
     } catch (error) {
