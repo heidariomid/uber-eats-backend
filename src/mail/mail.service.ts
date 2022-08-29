@@ -41,12 +41,6 @@ export class MailService {
     return mailApiResponse?.data;
   }
   sendVerificationMail(email: string, code: string): Promise<any> {
-    return this.sendMail(
-      'Verification',
-      'omid_heidari88@yahoo.com',
-      'recovery',
-      email,
-      code,
-    );
+    return this.sendMail('Verification', email, 'recovery', email, code);
   }
 }
