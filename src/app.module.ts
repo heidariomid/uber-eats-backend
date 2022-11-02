@@ -46,7 +46,8 @@ import { UploadsModule } from './uploads/uploads.module';
       // introspection: process.env.NODE_ENV === 'production',
       playground: process.env.NODE_ENV !== 'production',
       driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      // autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      autoSchemaFile: true,
       subscriptions: {
         'subscriptions-transport-ws': {
           path: '/graphql',
