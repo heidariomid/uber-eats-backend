@@ -1,6 +1,6 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, ManyToOne, OneToMany, RelationId } from 'typeorm';
-import { IsString } from 'class-validator';
+import { IsBoolean, IsString } from 'class-validator';
 import { CoreEntity } from 'src/common/core.entity';
 import { Category } from './category.entity';
 import { User } from 'src/users/entities/users.entity';
@@ -20,6 +20,11 @@ export class Restaurant extends CoreEntity {
   @Column()
   @IsString()
   coverImg: string;
+
+  @Field(() => Boolean)
+  @Column({ default: false })
+  @IsBoolean()
+  isOpen: boolean;
 
   @Field(() => String)
   @Column()
