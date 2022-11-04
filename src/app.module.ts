@@ -73,7 +73,7 @@ import { UploadsModule } from './uploads/uploads.module';
             password: process.env.DB_PASSWORD,
             database: process.env.DB_DATABASE,
           }),
-      ...(process.env.NODE_ENV === 'production'
+      ...(process.env.NODE_ENV === 'productions'
         ? { ssl: { rejectUnauthorized: false } }
         : null),
       schema: process.env.DB_SCHEMA,
