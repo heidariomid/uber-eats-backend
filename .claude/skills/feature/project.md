@@ -38,10 +38,10 @@ Same feature → update its file. Do not create a second one.
 - **Known QA story:** a `graphql-ws` client with
   `connectionParams.authToken` connects, and `pendingOrders` stays
   open. With no token the socket connects and `pendingOrders`
-  returns `Forbidden resource`. `getRestaurants`, `getRestaurant`,
-  and `createOrder` return 400 because `class-validator` 0.14
-  rejects inputs with no validators. Sign-up's unawaited Mailgun
-  call can exit the process
+  returns `Forbidden resource`. `ValidationPipe` sets
+  `forbidUnknownValues: false`, so `getRestaurants`,
+  `getRestaurant`, and `createOrder` return data. A failed Mailgun
+  call on sign-up is logged and the process stays up
 
 ## Git
 

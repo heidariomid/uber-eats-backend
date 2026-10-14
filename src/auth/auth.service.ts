@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '../jwt/jwt.service';
 import { MailService } from '../mail/mail.service';
@@ -15,6 +15,8 @@ import {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(UsersValidation)
@@ -50,7 +52,15 @@ export class AuthService {
       const verification = await this.usersValidation.save(
         this.usersValidation.create({ user }),
       );
-      this.mailService.sendVerificationMail(user?.email, verification?.code);
+      this.mailService
+        .sendVerificationMail(user.email, verification?.code)
+        .catch((error: unknown) => {
+          const message =
+            error instanceof Error ? error.message : 'Verification mail failed';
+          this.logger.error(
+            `Verification mail failed for ${user.email}: ${message}`,
+          );
+        });
       return {
         ok: true,
         message: 'Account created',
