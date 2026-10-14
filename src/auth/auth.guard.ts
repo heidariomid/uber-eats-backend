@@ -26,21 +26,22 @@ export class AuthGuard implements CanActivate {
     if (!token) {
       return false;
     }
-    const decode = await this.jwtService.verifyToken(token);
+    const decode = this.jwtService.verifyToken(token);
 
-    if (typeof decode === 'object' && decode.hasOwnProperty('id')) {
-      const userId = decode['id'];
-
-      const { user } = await this.usersService.findUser({ userId });
-
-      if (!user) {
-        return false;
-      }
-      gqlContext['user'] = user;
-      if (roles.includes('Any')) {
-        return true;
-      }
-      return roles.includes(user.role);
+    if (!decode || !decode.hasOwnProperty('id')) {
+      return false;
     }
+    const userId = decode['id'];
+
+    const { user } = await this.usersService.findUser({ userId });
+
+    if (!user) {
+      return false;
+    }
+    gqlContext['user'] = user;
+    if (roles.includes('Any')) {
+      return true;
+    }
+    return roles.includes(user.role);
   }
 }

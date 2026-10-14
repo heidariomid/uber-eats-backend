@@ -1,0 +1,13 @@
+---
+description: Never credit Cursor, Claude, or any other agent on commits
+alwaysApply: true
+---
+
+# No agent co-authors
+
+Commits belong to the user only.
+
+- Never add a `Co-authored-by` or `Co-Authored-By` trailer.
+- Never credit Cursor, Claude, or any other agent in a commit message, PR body, or author field.
+- Do not set the commit author or committer to an agent email such as `cursoragent@cursor.com` or `noreply@anthropic.com`.
+- After every commit, read `git log -1`. If a trailer was added automatically, strip it before the commit is pushed.

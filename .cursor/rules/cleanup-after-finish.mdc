@@ -1,0 +1,19 @@
+---
+description: After finishing a task, stop leftover terminals and delete review artifacts
+alwaysApply: true
+---
+
+# Cleanup After Finish
+
+When a task is done — especially `/feature after-review` or `/feature complete` — clean up before ending the turn. Do not leave processes or junk files running.
+
+- **Terminals** — stop every process you started (dev server, bundler, builds, watchers). Check the terminals folder and kill leftover PIDs. A stale server holding the port is what makes the next start fail for no visible reason.
+- **Browsers** — close IDE browser tabs you opened for QA or a dashboard.
+- **Artifacts** — delete files you created for the session only: screenshots, `/tmp` helpers, unused downloads. Do not delete app assets, `.env`, or files the user asked to keep.
+- **Test data** — remove throwaway users and rows you created while verifying, unless the user wants them kept.
+- Do this even if the verdict is Ready, and even if you already reported the result.
+
+```text
+❌ BAD: finish /feature complete with the dev server still running
+✅ GOOD: kill the server, close the browser, delete QA screenshots, then reply
+```

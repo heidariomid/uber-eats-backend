@@ -46,21 +46,19 @@ import { UploadsModule } from './uploads/uploads.module';
       // introspection: process.env.NODE_ENV === 'production',
       playground: process.env.NODE_ENV !== 'production',
       driver: ApolloDriver,
-      // autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      autoSchemaFile: true,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       subscriptions: {
-        'subscriptions-transport-ws': {
-          path: '/graphql',
-          onConnect({ Authorization }) {
-            if (Authorization) {
-              return { token: Authorization };
-            }
-            throw new Error('Missing auth token!');
-          },
-        },
         'graphql-ws': true,
       },
-      context: ({ req }) => req && { token: req.headers.authorization },
+      context: (context) => {
+        // graphql-ws connections: token comes from connectionParams.authToken
+        if (context?.connectionParams) {
+          return { token: context.connectionParams.authToken };
+        }
+        // HTTP requests: raw JWT in the authorization header (no Bearer prefix)
+        const { req } = context;
+        return req && { token: req.headers.authorization };
+      },
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',

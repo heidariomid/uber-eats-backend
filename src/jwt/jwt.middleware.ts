@@ -14,8 +14,10 @@ export class JwtMiddleware {
 
     if (token) {
       try {
-        const decode = await this.jwtService.verifyToken(token);
-        if (typeof decode === 'object' && decode.hasOwnProperty('id')) {
+        const decode = this.jwtService.verifyToken(
+          Array.isArray(token) ? token[0] : token,
+        );
+        if (decode && decode.hasOwnProperty('id')) {
           const userId = decode['id'];
 
           const { user } = await this.usersService.findUser({ userId });

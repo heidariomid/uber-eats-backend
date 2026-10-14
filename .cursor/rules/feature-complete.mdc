@@ -1,0 +1,18 @@
+---
+description: /feature complete merges the feature branch into main and deletes it
+alwaysApply: true
+---
+
+# Feature complete
+
+`/feature complete` finishes the feature on `main`.
+
+1. One commit on the feature branch. Reset `context/current-feature.md` in that same commit when the file exists.
+2. The commit message has no `Co-authored-by` trailer. Read `git log -1` and strip a trailer before any push.
+3. Check out `main` and fast-forward merge the feature branch.
+4. Delete the local feature branch.
+5. Push `main` when `origin` exists.
+6. Delete the remote feature branch if it was pushed. After complete, `main` is the only branch.
+7. Stop servers you started and close QA tabs.
+
+If the work is already on `main` and there is no feature branch, commit and push `main`. Do not invent a branch to delete.

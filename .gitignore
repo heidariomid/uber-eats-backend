@@ -131,3 +131,9 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Process kit
+.env
+.env*.local
+!.env.example
+.DS_Store

@@ -109,6 +109,7 @@ type Restaurant {
   createdAt: DateTime
   name: String!
   coverImg: String!
+  isOpen: Boolean!
   address: String!
   category: Category
   owner: User!
@@ -432,6 +433,7 @@ input AddressItemObjectType {
 input RestaurantInput {
   name: String!
   coverImg: String!
+  isOpen: Boolean!
   address: String!
   category: CategoryInput
   owner: UserInput!

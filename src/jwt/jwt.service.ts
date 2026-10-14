@@ -6,14 +6,15 @@ import { IJwt } from './jwt.interface';
 export class JwtService {
   static OPTION_JWT: any;
   constructor(@Inject('JWT') private readonly params: IJwt) {}
-  generateToken(payload) {
-    return jwt.sign(payload, this.params.JWT_SECRET);
+  generateToken(payload: { id: number }) {
+    return jwt.sign(payload, this.params.JWT_SECRET, { expiresIn: '7d' });
   }
-  verifyToken(token) {
+  verifyToken(token: string): jwt.JwtPayload | null {
     try {
-      return jwt.verify(token, this.params.JWT_SECRET);
-    } catch (error) {
-      return error.message;
+      const decoded = jwt.verify(token, this.params.JWT_SECRET);
+      return typeof decoded === 'object' ? decoded : null;
+    } catch {
+      return null;
     }
   }
   findToken(authorization) {
