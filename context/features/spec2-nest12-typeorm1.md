@@ -77,7 +77,8 @@ chosen here.
 
 - Every operation on the spec 1 baseline list has the result it had
 - The `../uber-eats-frontend` app, on Next 16, still lets a client
-  place an order, and the owner's view updates without a reload
+  place an order, and with the client on `/order/[id]` the owner's
+  status change shows without a reload (`updateOrders`)
 - `src/schema.gql` has no change a front-end query depends on.
   `npm run graphql:gen` in the front end produces no diff
 - `npm run build`, `npm test`, and `npm run lint` pass

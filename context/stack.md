@@ -57,8 +57,9 @@ None. The UI is `../uber-eats-frontend`.
 - Checks: `npm run build`, `npm test`, `npm run lint`
 - Product checklist (replaces section A):
   - Every operation on the spec 1 baseline list keeps its result
-  - The front end's order story: a client places an order and the
-    owner's view updates without a reload
+  - The front end's order story: a client places an order, the
+    owner changes its status, and the client's `/order/[id]` updates
+    without a reload (`updateOrders`)
   - `src/schema.gql` has no unintended change
 - Data checklist (replaces section B): the row in local Postgres
   after a write, read with `psql` or a GUI

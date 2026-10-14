@@ -1,7 +1,7 @@
 # Project Overview — Uber Eats clone (API)
 
 The GraphQL API behind `../uber-eats-frontend`: accounts, restaurants,
-categories, dishes, orders with a live subscription for owners, and
+categories, dishes, orders with live status updates, and
 Zarinpal payments. Success for this round is the same API on the
 current majors, still serving the upgraded front end on localhost.
 
@@ -59,7 +59,8 @@ Server 3 is end of life, and TypeORM 0.2 is four years old.
 ## Success criteria
 
 1. Every baseline operation behaves the same on Nest 12 and TypeORM 1
-2. The front end's order story still works, live update included
+2. The front end's order story still works, including the client's
+   live status update
 3. No secret is tracked, and nothing is deployed
 
 ---
