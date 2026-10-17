@@ -12,19 +12,14 @@ import { User } from 'src/users/entities/users.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Order,
-      Restaurant,
-      Dish,
-      CategoryRepository,
-      User,
-    ]),
+    TypeOrmModule.forFeature([Order, Restaurant, Dish, User]),
   ],
   providers: [
     OrdersService,
     RestaurantService,
     OrdersResolver,
     RestaurantResolver,
+    CategoryRepository,
   ],
 })
 export class OrdersModule {}

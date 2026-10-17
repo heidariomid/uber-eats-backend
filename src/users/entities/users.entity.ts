@@ -106,9 +106,10 @@ export class User extends CoreEntity {
   @BeforeInsert()
   @BeforeUpdate()
   async hashingPassword(): Promise<void> {
-    this.password &&
-      (this.password = await new HashPasswordService().hashPassword(
+    if (this.password) {
+      this.password = await new HashPasswordService().hashPassword(
         this.password,
-      ));
+      );
+    }
   }
 }

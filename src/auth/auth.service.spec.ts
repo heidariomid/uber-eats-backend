@@ -1,23 +1,16 @@
-import { registerEnumType } from '@nestjs/graphql';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { JwtService } from 'src/jwt/jwt.service';
 import { MailService } from 'src/mail/mail.service';
 import { HashPasswordService } from 'src/services/hashPassword';
-import { User } from 'src/users/entities/users.entity';
+import { User, UserRole } from 'src/users/entities/users.entity';
 import { UsersValidation } from 'src/users/entities/usersValidation.entity';
 import { Repository } from 'typeorm';
 import { AuthService } from './auth.service';
 
-enum UserRole {
-  Owner = 'OWNER',
-  Client = 'CLIENT',
-  Delivery = 'DELIVERY',
-}
-registerEnumType(UserRole, { name: 'UserRole' });
-
 const mockRepository = () => ({
   findOne: jest.fn(),
+  findBy: jest.fn(),
   find: jest.fn(),
   save: jest.fn(),
   update: jest.fn(),
@@ -25,7 +18,7 @@ const mockRepository = () => ({
   create: jest.fn(),
 });
 const mockMailService = {
-  sendVerificationMail: jest.fn(),
+  sendVerificationMail: jest.fn(() => Promise.resolve()),
 };
 
 const mockJwtService = {
@@ -85,29 +78,42 @@ describe('AuthService', () => {
       email: 'mock@gmail.com',
       password: 'mock1234',
       role: UserRole.Owner,
+      firstName: 'Mock',
+      lastName: 'User',
+      mobile: '09120000000',
     };
     const validUser = {
       code: 'mock1234',
     };
     it('should fail if user exists', async () => {
-      users.findOne.mockReturnValue(user);
+      users.findBy.mockResolvedValue([user]);
       const result = await service.createAccount(user);
-      expect(users.findOne).toHaveBeenCalledTimes(1);
-      expect(users.findOne).toHaveBeenCalledWith(expect.any(Object));
+      expect(users.findBy).toHaveBeenCalledTimes(1);
+      expect(users.findBy).toHaveBeenCalledWith({
+        email: user.email,
+        mobile: user.mobile,
+      });
       expect(result).toMatchObject({
         ok: false,
-        message: 'User already exist',
+        message: 'User already exists',
       });
     });
     it('should create new user', async () => {
-      users.findOne.mockReturnValue(undefined);
+      users.findBy.mockResolvedValue([]);
       users.create.mockReturnValue(user);
-      users.save.mockReturnValue(user);
+      users.save.mockResolvedValue(user);
       usersValidation.create.mockReturnValue(validUser);
       usersValidation.save.mockReturnValue(validUser);
       const result = await service.createAccount(user);
       expect(users.create).toHaveBeenCalledTimes(1);
-      expect(users.create).toHaveBeenCalledWith(user);
+      expect(users.create).toHaveBeenCalledWith({
+        email: user.email,
+        password: user.password,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mobile: user.mobile,
+      });
       expect(users.save).toHaveBeenCalledTimes(1);
       expect(users.save).toHaveBeenCalledWith(user);
       expect(usersValidation.create).toHaveBeenCalledTimes(1);
@@ -123,7 +129,7 @@ describe('AuthService', () => {
       });
     });
     it('should fail on any execption', async () => {
-      users.findOne.mockRejectedValue(new Error('mock error'));
+      users.findBy.mockRejectedValue(new Error('mock error'));
       const result = await service.createAccount(user);
       expect(result).toMatchObject({
         ok: false,
@@ -141,10 +147,10 @@ describe('AuthService', () => {
       users.findOne.mockReturnValue(undefined);
       const result = await service.login(user);
       expect(users.findOne).toHaveBeenCalledTimes(1);
-      expect(users.findOne).toHaveBeenCalledWith(
-        expect.any(Object),
-        expect.any(Object),
-      );
+      expect(users.findOne).toHaveBeenCalledWith({
+        where: { email: user.email },
+        select: { id: true, password: true },
+      });
       expect(result).toMatchObject({
         ok: false,
         message: 'User does not exist',

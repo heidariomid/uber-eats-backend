@@ -34,7 +34,7 @@ export class PaymentsService {
     { payment_method, orderId }: CreatePaymentInputType,
   ): Promise<CreatePaymentOutput> {
     try {
-      const order = await this.orders.findOne(orderId);
+      const order = await this.orders.findOneBy({ id: orderId });
       if (!order) {
         throw new Error('Order not found');
       }
@@ -71,11 +71,11 @@ export class PaymentsService {
     { refID, transactionId }: VerifyPaymentInputType,
   ): Promise<VerifyPaymentOutput> {
     try {
-      const isUserValid = await this.payments.findOne({ user });
+      const isUserValid = await this.payments.findOneBy({ user });
       if (!isUserValid) {
         throw new Error('User not found');
       }
-      const payment = await this.payments.findOne({ transactionId });
+      const payment = await this.payments.findOneBy({ transactionId });
       if (!payment) {
         throw new Error('Payment Reserve not found');
       }
@@ -108,7 +108,7 @@ export class PaymentsService {
 
   async Payments(user: User): Promise<PaymentsOutput> {
     try {
-      const payments = await this.payments.find({ user });
+      const payments = await this.payments.findBy({ user });
       return { ok: true, payments };
     } catch (error) {
       return { ok: false, message: error.message };

@@ -1,8 +1,13 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { DataSource, Repository } from 'typeorm';
 import { Category } from '../entities/category.entity';
 
-@EntityRepository(Category)
+@Injectable()
 export class CategoryRepository extends Repository<Category> {
+  constructor(dataSource: DataSource) {
+    super(Category, dataSource.createEntityManager());
+  }
+
   async getOrCreate(args): Promise<Category> {
     const categoryName = args.name.trim().toLowerCase();
     const categorySlug = categoryName.replace(/\s+/g, '-');

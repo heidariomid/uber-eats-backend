@@ -29,29 +29,41 @@ import { UploadsModule } from './uploads/uploads.module';
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'production',
-      validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('dev', 'test', 'production').required(),
-        PORT: Joi.number().default(4000),
-        DB_HOST: Joi.string(),
-        DB_PORT: Joi.number(),
-        DB_USER: Joi.string(),
-        DB_PASSWORD: Joi.string(),
-        DB_DATABASE: Joi.string(),
-        JWT_SECRET: Joi.string().required(),
-        MAIL_API_KEY: Joi.string().required(),
-        MAIL_DOMAIN_NAME: Joi.string().required(),
-      }),
+      validate: (config: Record<string, unknown>) => {
+        const schema = Joi.object({
+          NODE_ENV: Joi.string().valid('dev', 'test', 'production').required(),
+          PORT: Joi.number().default(4000),
+          DB_HOST: Joi.string(),
+          DB_PORT: Joi.number(),
+          DB_USER: Joi.string(),
+          DB_PASSWORD: Joi.string(),
+          DB_DATABASE: Joi.string(),
+          JWT_SECRET: Joi.string().required(),
+          MAIL_API_KEY: Joi.string().required(),
+          MAIL_DOMAIN_NAME: Joi.string().required(),
+        });
+        const { error, value } = schema.validate(config, {
+          allowUnknown: true,
+          abortEarly: false,
+        });
+        if (error) {
+          throw new Error(`Config validation error: ${error.message}`);
+        }
+        return value;
+      },
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      // introspection: process.env.NODE_ENV === 'production',
-      playground: process.env.NODE_ENV !== 'production',
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      // Nest 14 adds GraphiQL when this is on, and disables the landing
+      // page in production. A second Apollo landing-page plugin throws.
+      graphiql: process.env.NODE_ENV !== 'production',
       subscriptions: {
         'graphql-ws': true,
       },
       context: (context) => {
-        // graphql-ws connections: token comes from connectionParams.authToken
+        // graphql-ws: Nest passes the connection context, which still
+        // carries connectionParams. authToken is the client field.
         if (context?.connectionParams) {
           return { token: context.connectionParams.authToken };
         }

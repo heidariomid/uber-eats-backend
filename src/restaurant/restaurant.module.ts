@@ -11,12 +11,13 @@ import {
 import { RestaurantService } from './restaurant.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Restaurant, CategoryRepository, Dish])],
+  imports: [TypeOrmModule.forFeature([Restaurant, Dish])],
   providers: [
     RestaurantResolver,
     RestaurantService,
     CategoryResolver,
     DishResolver,
+    CategoryRepository,
   ],
 })
 export class RestaurantModule {}

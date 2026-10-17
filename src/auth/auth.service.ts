@@ -35,7 +35,7 @@ export class AuthService {
     mobile,
   }: createAccountInput): Promise<createAccountOutput> {
     try {
-      const userExist = await this.users.find({ email, mobile });
+      const userExist = await this.users.findBy({ email, mobile });
       if (userExist.length > 0) {
         throw new Error('User already exists');
       }
@@ -75,10 +75,10 @@ export class AuthService {
 
   async login({ email, password }: loginInput): Promise<loginOutput> {
     try {
-      const user = await this.users.findOne(
-        { email },
-        { select: ['id', 'password'] },
-      );
+      const user = await this.users.findOne({
+        where: { email },
+        select: { id: true, password: true },
+      });
       if (!user) {
         throw new Error('User does not exist');
       }

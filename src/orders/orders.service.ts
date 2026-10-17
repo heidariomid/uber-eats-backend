@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { v4 as uuid } from 'uuid';
 import { PubSub } from 'graphql-subscriptions';
 import {
   NEW_COOKED_ORDER,
@@ -47,7 +46,7 @@ export class OrdersService {
     }: CreateOrderInput,
   ): Promise<CreateOrderOutput> {
     try {
-      const user = await this.users.findOne({ id: customer.id });
+      const user = await this.users.findOneBy({ id: customer.id });
       if (!user) {
         throw new Error('User not found');
       }
@@ -73,7 +72,7 @@ export class OrdersService {
       }
 
       // find restaurant
-      const restaurant = await this.restaurant.findOne(restaurantId);
+      const restaurant = await this.restaurant.findOneBy({ id: restaurantId });
       if (!restaurant) {
         throw new Error('Restaurant not found');
       }
@@ -82,7 +81,7 @@ export class OrdersService {
 
       const options = [];
       for (const item of dishQuantity) {
-        const dish = await this.dishes.findOne(item.id);
+        const dish = await this.dishes.findOneBy({ id: item.id });
 
         if (!dish) {
           throw new Error('Dish not found');
@@ -148,7 +147,8 @@ export class OrdersService {
     { id: orderId, status }: EditOrderInput,
   ): Promise<EditOrderOutput> {
     try {
-      const order = await this.orders.findOne(orderId, {
+      const order = await this.orders.findOne({
+        where: { id: orderId },
         loadEagerRelations: true,
       });
       if (!order) {
@@ -208,8 +208,9 @@ export class OrdersService {
 
   async getOrderById(user: User, { id }: OrderInputType): Promise<OrderOutput> {
     try {
-      const order = await this.orders.findOne(id, {
-        relations: ['restaurant'],
+      const order = await this.orders.findOne({
+        where: { id },
+        relations: { restaurant: true },
       });
       if (!order) {
         throw new Error('Order not found');
@@ -242,7 +243,7 @@ export class OrdersService {
         return { ok: true, message: 'Orders Found successfully', orders };
       } else if (user.role === UserRole.Owner) {
         const restaurants = await this.restaurant.find({
-          relations: ['orders'],
+          relations: { orders: true },
 
           where: { owner: user },
         });
@@ -266,8 +267,9 @@ export class OrdersService {
 
   async takeOrder(driver: User, { id }: OrderInputType): Promise<OrderOutput> {
     try {
-      const order = await this.orders.findOne(id, {
-        relations: ['restaurant'],
+      const order = await this.orders.findOne({
+        where: { id },
+        relations: { restaurant: true },
       });
       if (!order) {
         throw new Error('Order not found');

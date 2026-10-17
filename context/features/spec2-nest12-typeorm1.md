@@ -29,8 +29,11 @@ chosen here.
 - Delete `apollo-server-express` and `apollo-server-core`. Remove
   `@graphql-tools/schema` if nothing imports it
 - **GraphQL Playground is gone** in Apollo Server 4 and later.
-  Replace `playground: process.env.NODE_ENV !== 'production'` with
-  the Apollo landing-page plugin, local only
+  Nest 14 already installs one landing-page plugin, and a second
+  Apollo landing-page plugin throws "Only one plugin can implement
+  renderLandingPage." Use
+  `graphiql: process.env.NODE_ENV !== 'production'`. The local IDE
+  is GraphiQL
 - **Subscriptions stay on `graphql-ws`.** Keep the spec 1 context
   function that reads `connectionParams.authToken`, and check its
   argument shape on `@nestjs/apollo` 14. `graphql-ws` stays on 5 if
@@ -88,6 +91,8 @@ chosen here.
 
 ## Notes
 
+- Local GraphQL IDE is Nest's GraphiQL (`graphiql` on outside
+  production). Do not add a second landing-page plugin
 - After this is on `main`, decide the host. The options stay: a
   Node process that can hold WebSockets, with Supabase for Postgres,
   or leave the portfolio card at `Demo · Offline`. Do not decide

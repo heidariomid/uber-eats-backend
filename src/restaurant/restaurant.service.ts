@@ -61,7 +61,7 @@ export class RestaurantService {
     try {
       const newRestaurant = this.restaurant.create(args);
       newRestaurant.owner = owner;
-      const category = await this.categories.findOne({ id: args.categoryId });
+      const category = await this.categories.findOneBy({ id: args.categoryId });
       newRestaurant.category = category;
       await this.restaurant.save(newRestaurant);
       return { ok: true, message: 'Restaurants Created successfully' };
@@ -75,7 +75,9 @@ export class RestaurantService {
     args: EditRestaurantInput,
   ): Promise<EditRestaurantOutput> {
     try {
-      const restaurant = await this.restaurant.findOne(args.restaurantId);
+      const restaurant = await this.restaurant.findOneBy({
+        id: args.restaurantId,
+      });
       if (!restaurant) {
         throw new Error('Restaurant not found');
       }
@@ -84,7 +86,7 @@ export class RestaurantService {
       }
       let category: Category = null;
       if (args?.categoryId) {
-        category = await this.categories.findOne({ id: args.categoryId });
+        category = await this.categories.findOneBy({ id: args.categoryId });
       }
       await this.restaurant.save([
         {
@@ -104,7 +106,9 @@ export class RestaurantService {
     args: DeleteRestaurantInput,
   ): Promise<DeleteRestaurantOutput> {
     try {
-      const restaurant = await this.restaurant.findOne(args.restaurantId);
+      const restaurant = await this.restaurant.findOneBy({
+        id: args.restaurantId,
+      });
       if (!restaurant) {
         throw new Error('Restaurant not found');
       }
@@ -138,7 +142,7 @@ export class RestaurantService {
   }
 
   async restaurantCount(category: Category): Promise<number> {
-    return this.restaurant.count({ category });
+    return this.restaurant.countBy({ category });
   }
   async getCategory({
     slug,
@@ -147,7 +151,7 @@ export class RestaurantService {
     try {
       if (slug === 'all') {
         const restaurants = await this.restaurant.find({
-          relations: ['category'],
+          relations: { category: true },
           skip: (page - 1) * 9,
           take: 9,
           order: {
@@ -161,13 +165,13 @@ export class RestaurantService {
         };
       }
 
-      const category = await this.categories.findOne({ slug });
+      const category = await this.categories.findOneBy({ slug });
       if (!category) {
         throw new Error('category not found');
       }
       const restaurants = await this.restaurant.find({
         where: { category },
-        relations: ['category'],
+        relations: { category: true },
         skip: (page - 1) * 9,
         take: 9,
         order: {
@@ -197,7 +201,7 @@ export class RestaurantService {
           skip: (page - 1) * 9,
           take: 9,
           order: { isPromoted: 'DESC' },
-          relations: ['category'],
+          relations: { category: true },
           where: {
             ...(slug && slug !== 'all' && { category: { slug } }),
           },
@@ -227,7 +231,7 @@ export class RestaurantService {
           skip: (page - 1) * 9,
           take: 9,
           order: { isPromoted: 'DESC' },
-          relations: ['category'],
+          relations: { category: true },
         });
 
       if (restaurants.length === 0) {
@@ -248,8 +252,9 @@ export class RestaurantService {
     restaurantId,
   }: RestaurantInputType): Promise<RestaurantOutput> {
     try {
-      const restaurant = await this.restaurant.findOne(restaurantId, {
-        relations: ['menu', 'orders', 'category', 'owner'],
+      const restaurant = await this.restaurant.findOne({
+        where: { id: restaurantId },
+        relations: { menu: true, orders: true, category: true, owner: true },
       });
 
       return {
@@ -265,8 +270,9 @@ export class RestaurantService {
     restaurantId,
   }: RestaurantInputType): Promise<RestaurantOutput> {
     try {
-      const restaurant = await this.restaurant.findOne(restaurantId, {
-        relations: ['menu', 'category'],
+      const restaurant = await this.restaurant.findOne({
+        where: { id: restaurantId },
+        relations: { menu: true, category: true },
       });
 
       return {
@@ -290,7 +296,7 @@ export class RestaurantService {
           },
           skip: (page - 1) * 9,
           take: 9,
-          relations: ['category'],
+          relations: { category: true },
           order: { isPromoted: 'DESC' },
         });
 
@@ -334,7 +340,9 @@ export class RestaurantService {
   ): Promise<CreateDishOutput> {
     try {
       // find restaurant
-      const restaurant = await this.restaurant.findOne(args.restaurantId);
+      const restaurant = await this.restaurant.findOneBy({
+        id: args.restaurantId,
+      });
       if (!restaurant) {
         throw new Error('Restaurant not found');
       }
@@ -362,8 +370,9 @@ export class RestaurantService {
     args: DeleteDishInput,
   ): Promise<DeleteDishOutput> {
     try {
-      const dish = await this.dishes.findOne(args.dishId, {
-        relations: ['restaurant'],
+      const dish = await this.dishes.findOne({
+        where: { id: args.dishId },
+        relations: { restaurant: true },
       });
       if (!dish) {
         throw new Error('Dish not found');
@@ -380,8 +389,9 @@ export class RestaurantService {
 
   async editDish(owner: User, args: EditDishInput): Promise<EditDishOutput> {
     try {
-      const dish = await this.dishes.findOne(args.dishId, {
-        relations: ['restaurant'],
+      const dish = await this.dishes.findOne({
+        where: { id: args.dishId },
+        relations: { restaurant: true },
       });
       if (!dish) {
         throw new Error('Dish not found');
@@ -404,8 +414,9 @@ export class RestaurantService {
 
   async getDish({ dishId }: DishOneInput): Promise<DishOutput> {
     try {
-      const dish = await this.dishes.findOne(dishId, {
-        relations: ['restaurant'],
+      const dish = await this.dishes.findOne({
+        where: { id: dishId },
+        relations: { restaurant: true },
       });
       if (!dish) {
         throw new Error('Dish not found');

@@ -33,9 +33,9 @@ export class UsersService {
   //find user
   async findUser({ userId }: UserProfileInput): Promise<UserProfileOutput> {
     try {
-      const user = await this.users.findOneOrFail(userId);
+      const user = await this.users.findOneOrFail({ where: { id: userId } });
       return { ok: true, message: 'User profile found', user };
-    } catch (error) {
+    } catch {
       return { ok: false, message: 'User does not exist' };
     }
   }
@@ -46,7 +46,7 @@ export class UsersService {
     newUser: UpdateUserInput,
   ): Promise<UpdateUserOutput> {
     try {
-      const user = await this.users.findOne(id);
+      const user = await this.users.findOneBy({ id });
       if (!user) {
         throw new Error('User does not exist');
       }
@@ -68,10 +68,12 @@ export class UsersService {
           // this.mailService.sendVerificationMail(user?.email, validation?.code);
         }
       }
-      if (role === UserRole.Admin) {
-        newUser?.role && (user.role = newUser?.role);
+      if (role === UserRole.Admin && newUser?.role) {
+        user.role = newUser.role;
       }
-      newUser?.password && (user.password = newUser?.password);
+      if (newUser?.password) {
+        user.password = newUser.password;
+      }
 
       await this.users.save(user);
       return { ok: true, message: 'User Updated Successfully' };
@@ -85,10 +87,10 @@ export class UsersService {
     code,
   }: ValidateEmailInput): Promise<ValidateEmailOutput> {
     try {
-      const validation = await this.usersValidation.findOne(
-        { code },
-        { relations: ['user'] },
-      );
+      const validation = await this.usersValidation.findOne({
+        where: { code },
+        relations: { user: true },
+      });
       if (!validation) {
         throw new Error('Invalid Code');
       }
